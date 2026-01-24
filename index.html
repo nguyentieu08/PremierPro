@@ -3,130 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Tiêu AI - Trả Lời Tự Động</title>
+    <title>Nguyễn Tiêu AI</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { min-height: 100vh; background: #02050a; color: white; overflow: hidden; position: relative; }
-        
-        /* Hiệu ứng sao bay nền */
-        #bg-wrap { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: fly 15s linear infinite; }
-        @keyframes fly { from { transform: translateY(100vh); opacity: 0; } 50% { opacity: 1; } to { transform: translateY(-10vh); opacity: 0; } }
-
-        /* Màn hình đăng nhập */
-        #login-screen { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; background: #02050a; transition: 0.8s; }
-        .login-card { position: relative; width: 340px; height: 450px; background: rgba(255, 255, 255, 0.05); border-radius: 25px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .login-card::before { content: ''; position: absolute; width: 150%; height: 150%; background: conic-gradient(transparent, transparent, transparent, #00e5ff, #ff0055, #ffcc00, #00e5ff); animation: rotate-border 4s linear infinite; }
-        @keyframes rotate-border { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .login-inner { position: absolute; inset: 4px; background: #060c18; border-radius: 22px; z-index: 10; padding: 40px 30px; display: flex; flex-direction: column; text-align: center; }
-        .login-inner h2 { color: #00e5ff; margin-bottom: 30px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
-        .login-inner input { width: 100%; padding: 12px; margin: 10px 0; background: #101a2d; border: 1px solid #1a2a44; color: white; border-radius: 10px; outline: none; }
-        .login-inner button { width: 100%; padding: 12px; background: linear-gradient(90deg, #00e5ff, #ff0055); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; color: white; }
-
-        /* Giao diện Chat */
-        #ai-screen { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: radial-gradient(circle at center, #0a192f 0%, #02050a 100%); opacity: 0; transition: 1s; }
-        header { padding: 15px 20px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); background: rgba(0,0,0,0.4); display: flex; justify-content: space-between; align-items: center; }
-        header h1 { color: #00e5ff; font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
-        .clear-btn { background: none; border: 1px solid #ff0055; color: #ff0055; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 11px; }
-
-        #chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .msg { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 14px; line-height: 1.6; position: relative; animation: fadeIn 0.3s ease; word-wrap: break-word; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .ai-msg { background: rgba(0, 229, 255, 0.1); color: #e0faff; align-self: flex-start; border-left: 4px solid #00e5ff; border-bottom-left-radius: 2px; }
-        .user-msg { background: rgba(255, 0, 85, 0.1); color: #ffe0eb; align-self: flex-end; border-right: 4px solid #ff0055; border-bottom-right-radius: 2px; }
-
-        #typing-box { padding: 10px 20px; display: none; align-items: center; gap: 8px; color: #00e5ff; font-size: 12px; }
-        .dot-typing { width: 6px; height: 6px; border-radius: 50%; background: #00e5ff; animation: dotPulse 1.5s infinite; }
-        .dot-typing:nth-child(2) { animation-delay: 0.2s; }
-        .dot-typing:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes dotPulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
-
-        .chat-input-area { padding: 15px; background: #060c18; display: flex; gap: 10px; border-top: 1px solid #1a2a44; }
-        #user-input { flex: 1; background: #101a2d; border: 1px solid #333; padding: 12px 20px; border-radius: 30px; color: white; outline: none; }
-        #send-btn { background: #00e5ff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: #02050a; color: white; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 15px; border-bottom: 1px solid #00e5ff; text-align: center; color: #00e5ff; font-weight: bold; box-shadow: 0 0 10px #00e5ff; }
+        #chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.5; }
+        .ai-msg { background: rgba(0, 229, 255, 0.1); align-self: flex-start; border-left: 3px solid #00e5ff; }
+        .user-msg { background: rgba(255, 0, 85, 0.1); align-self: flex-end; border-right: 3px solid #ff0055; }
+        .input-area { padding: 15px; display: flex; gap: 10px; background: #060c18; }
+        input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #101a2d; color: white; outline: none; }
+        button { background: #00e5ff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div id="bg-wrap"></div>
-
-    <div id="login-screen">
-        <div class="login-card">
-            <div class="login-inner">
-                <h2>NGUYỄN TIÊU AI</h2>
-                <input type="text" id="u" placeholder="Tài khoản (admin)">
-                <input type="password" id="p" placeholder="Mật khẩu (123)">
-                <button onclick="handleLogin()">ĐĂNG NHẬP</button>
-                <p style="margin-top: auto; font-size: 10px; color: #444;">SECURITY BY NGUYỄN TIÊU</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="ai-screen">
-        <header>
-            <div style="width: 70px;"></div>
-            <h1>NGUYỄN TIÊU AI</h1>
-            <button class="clear-btn" onclick="clearHistory()">XÓA CHAT</button>
-        </header>
-
-        <div id="chat-container"></div>
-        
-        <div id="typing-box">
-            <div class="dot-typing"></div><div class="dot-typing"></div><div class="dot-typing"></div>
-            <span>Nguyễn Tiêu AI đang phân tích...</span>
-        </div>
-
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Hỏi Nguyễn Tiêu AI bất cứ điều gì...">
-            <button id="send-btn" onclick="sendMessage()">➤</button>
-        </div>
+    <header>NGUYỄN TIÊU AI</header>
+    <div id="chat-container"></div>
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Nhập tin nhắn...">
+        <button onclick="sendMessage()">➤</button>
     </div>
 
     <script>
-        // API KEY MỚI CỦA SẾP
-        const API_KEY = "AIzaSyB5Z4JmN3jIJpxR6jgD4F6vJ1CQaluaU6I"; 
+        // MÃ CHUẨN LẤY TỪ ẢNH CỦA SẾP (1769252828656.jpeg)
+        const API_KEY = "AIzaSyBZYI0kAVenAzKa3sbNSXKCHCOKcKI02os";
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-        window.onload = () => { createStars(); };
-
-        function createStars() {
-            const bg = document.getElementById('bg-wrap');
-            for (let i = 0; i < 40; i++) {
-                let star = document.createElement('div');
-                star.className = 'star';
-                star.style.width = star.style.height = Math.random() * 2 + 'px';
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.animationDuration = (Math.random() * 8 + 7) + 's';
-                bg.appendChild(star);
-            }
-        }
-
-        function handleLogin() {
-            const user = document.getElementById('u').value;
-            const pass = document.getElementById('p').value;
-            if(user === "admin" && pass === "123") {
-                const ls = document.getElementById('login-screen');
-                ls.style.opacity = "0";
-                setTimeout(() => {
-                    ls.style.display = "none";
-                    document.getElementById('ai-screen').style.display = "flex";
-                    setTimeout(() => { 
-                        document.getElementById('ai-screen').style.opacity = "1";
-                        addMessage("Xin chào sếp! Nguyễn Tiêu AI đã sẵn sàng phục vụ.", "ai-msg");
-                    }, 50);
-                }, 800);
-            } else { alert("Sai thông tin rồi sếp ơi!"); }
-        }
 
         function addMessage(text, className) {
             const container = document.getElementById('chat-container');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `msg ${className}`;
-            msgDiv.innerText = text;
-            container.appendChild(msgDiv);
+            const div = document.createElement('div');
+            div.className = `msg ${className}`;
+            div.innerText = text;
+            container.appendChild(div);
             container.scrollTop = container.scrollHeight;
-            return msgDiv;
         }
 
         async function sendMessage() {
@@ -136,7 +46,6 @@
 
             addMessage(prompt, 'user-msg');
             input.value = "";
-            document.getElementById('typing-box').style.display = "flex";
 
             try {
                 const response = await fetch(API_URL, {
@@ -144,42 +53,13 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
-                
                 const data = await response.json();
-                document.getElementById('typing-box').style.display = "none";
-
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    const aiText = data.candidates[0].content.parts[0].text;
-                    typeWriter(aiText);
-                } else {
-                    throw new Error();
-                }
+                const aiText = data.candidates[0].content.parts[0].text;
+                addMessage(aiText, 'ai-msg');
             } catch (e) {
-                document.getElementById('typing-box').style.display = "none";
-                addMessage("Nguyễn Tiêu AI mất kết nối! Sếp kiểm tra lại API hoặc mạng nhé.", 'ai-msg');
+                addMessage("Lỗi kết nối! Sếp kiểm tra lại mã API hoặc mạng nhé.", 'ai-msg');
             }
         }
-
-        function typeWriter(text) {
-            const msgDiv = addMessage("", "ai-msg");
-            let i = 0;
-            const speed = 20; // Tốc độ gõ chữ
-            function typing() {
-                if (i < text.length) {
-                    msgDiv.innerText += text.charAt(i);
-                    i++;
-                    document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
-                    setTimeout(typing, speed);
-                }
-            }
-            typing();
-        }
-
-        function clearHistory() { document.getElementById('chat-container').innerHTML = ""; }
-
-        document.getElementById('user-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
     </script>
 </body>
 </html>
