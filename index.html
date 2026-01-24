@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Nguyễn Tiêu Dev</title>
+    <title>HACKER_SOCIAL_GATEWAY</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
-        body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
         
         canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
 
-        /* Container viền hiệu ứng động */
+        /* Container viền động */
         .border-animation {
-            position: relative;
-            z-index: 10;
-            padding: 4px; 
-            border-radius: 40px; 
+            position: relative; z-index: 10;
+            padding: 4px; border-radius: 40px; 
             background: rgba(0, 255, 0, 0.1);
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; display: flex; justify-content: center; align-items: center;
             box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
         }
 
         .border-animation::before {
-            content: '';
-            position: absolute;
+            content: ''; position: absolute;
             width: 200%; height: 200%;
             background: conic-gradient(transparent, transparent, #0f0, transparent);
             animation: rotate-border 2s linear infinite;
@@ -35,38 +31,50 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Hộp đăng nhập */
+        /* Hộp đăng nhập chính */
         .login-box {
-            position: relative;
-            width: 380px; padding: 45px;
-            background: #000;
-            border-radius: 37px;
-            color: #0f0;
-            z-index: 2;
-            text-align: center;
+            position: relative; width: 400px; padding: 40px;
+            background: #000; border-radius: 37px;
+            color: #0f0; z-index: 2; text-align: center;
         }
 
-        h2 { font-size: 1.6rem; margin-bottom: 30px; letter-spacing: 6px; text-shadow: 0 0 10px #0f0; }
+        h2 { font-size: 1.6rem; margin-bottom: 25px; letter-spacing: 5px; text-shadow: 0 0 10px #0f0; }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { font-size: 10px; display: block; margin-bottom: 8px; opacity: 0.7; letter-spacing: 1px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { font-size: 10px; display: block; margin-bottom: 5px; opacity: 0.7; }
         
         input {
-            width: 100%; padding: 15px; background: rgba(0, 255, 0, 0.03); 
+            width: 100%; padding: 12px; background: rgba(0, 20, 0, 0.5); 
             border: 1px solid #040; border-radius: 20px;
             color: #0f0; outline: none; font-size: 16px; transition: 0.3s;
         }
-        input:focus { border-color: #0f0; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
+        input:focus { border-color: #0f0; box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); }
 
-        button {
-            width: 100%; padding: 16px; background: #0f0; color: #000;
+        .main-btn {
+            width: 100%; padding: 15px; background: #0f0; color: #000;
             border: none; border-radius: 20px; font-weight: bold; 
             cursor: pointer; transition: 0.3s; text-transform: uppercase;
-            letter-spacing: 3px; margin-top: 15px;
+            letter-spacing: 2px; margin-top: 10px;
         }
-        button:hover { background: #000; color: #0f0; box-shadow: 0 0 30px #0f0; transform: scale(1.03); }
+        .main-btn:hover { background: #000; color: #0f0; box-shadow: 0 0 25px #0f0; }
 
-        #status { margin-top: 25px; font-size: 10px; height: 50px; border-top: 1px dashed #030; padding-top: 15px; color: #080; }
+        /* Social Links bên dưới */
+        .social-container {
+            margin-top: 25px; border-top: 1px dashed #040; padding-top: 20px;
+            display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px;
+        }
+
+        .social-item {
+            color: #0f0; text-decoration: none; font-size: 11px;
+            padding: 5px 10px; border: 1px solid #030; border-radius: 10px;
+            transition: 0.3s; background: rgba(0, 255, 0, 0.05);
+        }
+
+        .social-item:hover {
+            background: #0f0; color: #000; box-shadow: 0 0 10px #0f0;
+        }
+
+        .admin-info { font-size: 10px; color: #080; margin-top: 15px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -75,17 +83,28 @@
 
     <div class="border-animation">
         <div class="login-box">
-            <h2>LOGIN PANEL</h2>
+            <h2>PANEL LOGIN</h2>
+            
             <div class="input-group">
                 <label>> TÀI KHOẢN</label>
                 <input type="text" id="u" placeholder="admin" autocomplete="off">
             </div>
+            
             <div class="input-group">
                 <label>> MẬT KHẨU</label>
                 <input type="password" id="p" placeholder="••••••••">
             </div>
-            <button onclick="auth()">ĐĂNG NHẬP</button>
-            <div id="status"></div>
+
+            <button class="main-btn" onclick="auth()">ACCESS_CORE</button>
+
+            <div class="admin-info">Admin: Nguyễn Tiêu</div>
+
+            <div class="social-container">
+                <a href="#" class="social-item">Facebook</a>
+                <a href="#" class="social-item">TikTok</a>
+                <a href="#" class="social-item">Zalo</a>
+                <a href="#" class="social-item">Telegram</a>
+            </div>
         </div>
     </div>
 
@@ -97,60 +116,47 @@
         setSize(); window.onresize = setSize;
 
         const particles = [];
-        const particleCount = 400; // Số lượng hạt
-
-        for(let i=0; i<particleCount; i++) {
+        for(let i=0; i<350; i++) {
             particles.push({
                 x: Math.random() * w,
                 y: Math.random() * h,
-                vx: (Math.random() - 0.5) * 30, // Tốc độ cực cao
-                vy: (Math.random() - 0.5) * 30,
+                vx: (Math.random() - 0.5) * 28,
+                vy: (Math.random() - 0.5) * 28,
                 txt: Math.random() > 0.5 ? "1" : "0",
-                size: Math.random() * 15 + 8,
-                changeRate: Math.random() * 0.2 + 0.05 // Tỉ lệ đổi số riêng cho mỗi hạt
+                size: Math.random() * 12 + 8
             });
         }
 
         function animate() {
-            // Tạo vệt mờ motion blur
-            ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
             ctx.fillRect(0, 0, w, h);
             
             particles.forEach(p => {
-                // ĐỔI KÝ TỰ NGẪU NHIÊN LIÊN TỤC TRONG KHI BAY
-                if(Math.random() < 0.15) { // 15% khả năng đổi số ở mỗi khung hình
-                    p.txt = p.txt === "1" ? "0" : "1";
-                }
+                // Nhảy số 0101 liên tục khi đang bay
+                if(Math.random() < 0.2) p.txt = p.txt === "1" ? "0" : "1";
 
                 ctx.fillStyle = "#0f0";
                 ctx.font = `bold ${p.size}px monospace`;
                 ctx.fillText(p.txt, p.x, p.y);
 
-                // Di chuyển
-                p.x += p.vx; 
-                p.y += p.vy;
+                p.x += p.vx; p.y += p.vy;
 
-                // Xuyên tường vô tận
-                if(p.x < -20) p.x = w + 20;
-                if(p.x > w + 20) p.x = -20;
-                if(p.y < -20) p.y = h + 20;
-                if(p.y > h + 20) p.y = -20;
+                // Xuyên tường
+                if(p.x < -20) p.x = w + 20; if(p.x > w + 20) p.x = -20;
+                if(p.y < -20) p.y = h + 20; if(p.y > h + 20) p.y = -20;
             });
             requestAnimationFrame(animate);
         }
         animate();
 
         function auth() {
-            const s = document.getElementById('status');
-            s.innerHTML = "> Scanning packets...<br>";
-            setTimeout(() => {
-                if(document.getElementById('u').value === "admin" && document.getElementById('p').value === "123456") {
-                    s.innerHTML += "> <span style='color:#fff'>AUTHENTICATION_SUCCESSFUL</span>";
-                    alert("Đăng nhập thành công!");
-                } else {
-                    s.innerHTML += "> <span style='color:#f00'>ACCESS_DENIED_INV_HASH</span>";
-                }
-            }, 600);
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            if(u === "admin" && p === "123456") {
+                alert("ACCESS GRANTED! Đang vào Panel.");
+            } else {
+                alert("ACCESS DENIED! Sai mã khóa rồi bạn ơi.");
+            }
         }
     </script>
 </body>
