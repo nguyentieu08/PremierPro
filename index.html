@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Tiêu AI - Hoạt Động</title>
+    <title>Nguyễn Tiêu AI - Full Version</title>
     <style>
+        /* --- GIAO DIỆN CHUẨN CỦA SẾP --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { min-height: 100vh; background: #02050a; color: white; overflow: hidden; position: relative; }
+        
         #bg-wrap { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: fly 15s linear infinite; }
         @keyframes fly { from { transform: translateY(100vh); opacity: 0; } 50% { opacity: 1; } to { transform: translateY(-10vh); opacity: 0; } }
 
+        /* Màn hình đăng nhập RGB */
         #login-screen { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; background: #02050a; transition: 0.8s; }
         .login-card { position: relative; width: 340px; height: 450px; background: rgba(255, 255, 255, 0.05); border-radius: 25px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         .login-card::before { content: ''; position: absolute; width: 150%; height: 150%; background: conic-gradient(transparent, transparent, transparent, #00e5ff, #ff0055, #ffcc00, #00e5ff); animation: rotate-border 4s linear infinite; }
@@ -20,10 +23,10 @@
         .login-inner input { width: 100%; padding: 12px; margin: 10px 0; background: #101a2d; border: 1px solid #1a2a44; color: white; border-radius: 10px; outline: none; }
         .login-inner button { width: 100%; padding: 12px; background: linear-gradient(90deg, #00e5ff, #ff0055); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; color: white; }
 
+        /* Giao diện Chat */
         #ai-screen { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: radial-gradient(circle at center, #0a192f 0%, #02050a 100%); opacity: 0; transition: 1s; }
         header { padding: 15px 20px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); background: rgba(0,0,0,0.4); display: flex; justify-content: space-between; align-items: center; }
         header h1 { color: #00e5ff; font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
-        .clear-btn { background: none; border: 1px solid #ff0055; color: #ff0055; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 11px; }
 
         #chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .msg { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.3s ease; }
@@ -32,13 +35,13 @@
         .ai-msg { background: rgba(0, 229, 255, 0.1); color: #e0faff; align-self: flex-start; border-left: 4px solid #00e5ff; border-bottom-left-radius: 2px; }
         .user-msg { background: rgba(255, 0, 85, 0.1); color: #ffe0eb; align-self: flex-end; border-right: 4px solid #ff0055; border-bottom-right-radius: 2px; }
 
-        #typing-box { padding: 10px 20px; display: none; align-items: center; gap: 8px; color: #00e5ff; font-size: 12px; }
         .chat-input-area { padding: 15px; background: #060c18; display: flex; gap: 10px; border-top: 1px solid #1a2a44; }
         #user-input { flex: 1; background: #101a2d; border: 1px solid #333; padding: 12px 20px; border-radius: 30px; color: white; outline: none; }
-        #send-btn { background: #00e5ff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        #send-btn { background: #00e5ff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
+
     <div id="bg-wrap"></div>
 
     <div id="login-screen">
@@ -57,10 +60,11 @@
         <header>
             <div style="width: 70px;"></div>
             <h1>NGUYỄN TIÊU AI</h1>
-            <button class="clear-btn" onclick="location.reload()">THOÁT</button>
+            <button style="background:none; border:1px solid #ff0055; color:#ff0055; padding:5px 12px; border-radius:20px; cursor:pointer;" onclick="location.reload()">THOÁT</button>
         </header>
+
         <div id="chat-container"></div>
-        <div id="typing-box"><span>Đang phân tích...</span></div>
+        
         <div class="chat-input-area">
             <input type="text" id="user-input" placeholder="Hỏi Nguyễn Tiêu AI...">
             <button id="send-btn" onclick="sendMessage()">➤</button>
@@ -68,9 +72,10 @@
     </div>
 
     <script>
-        // MÃ API LẤY TỪ ẢNH CỦA SẾP - KHÔNG CÓ KHOẢNG TRẮNG
+        // MÃ API CHUẨN TỪ ẢNH 1769252828656.jpeg
         const API_KEY = "AIzaSyBZYI0kAVenAzKa3sbNSXKCHCOKcKI02os"; 
-        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // URL CHUẨN ĐỂ KHÔNG BỊ LỖI 404
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         window.onload = () => { createStars(); };
 
@@ -93,8 +98,9 @@
                     document.getElementById('login-screen').style.display = "none";
                     document.getElementById('ai-screen').style.display = "flex";
                     setTimeout(() => { document.getElementById('ai-screen').style.opacity = "1"; }, 50);
+                    addMessage("Xin chào sếp! Nguyễn Tiêu AI đã sẵn sàng.", "ai-msg");
                 }, 800);
-            } else { alert("Thông tin sai sếp ơi!"); }
+            } else { alert("Sai pass rồi sếp!"); }
         }
 
         function addMessage(text, className) {
@@ -113,7 +119,6 @@
 
             addMessage(prompt, 'user-msg');
             input.value = "";
-            document.getElementById('typing-box').style.display = "flex";
 
             try {
                 const response = await fetch(API_URL, {
@@ -121,20 +126,21 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
+                
                 const data = await response.json();
-                document.getElementById('typing-box').style.display = "none";
                 if (data.candidates) {
                     addMessage(data.candidates[0].content.parts[0].text, 'ai-msg');
                 } else {
-                    addMessage("Google báo: " + data.error.message, 'ai-msg');
+                    addMessage("Lỗi Google: " + data.error.message, 'ai-msg');
                 }
             } catch (e) {
-                document.getElementById('typing-box').style.display = "none";
-                addMessage("Lỗi kết nối nghiêm trọng rồi sếp!", 'ai-msg');
+                addMessage("Mất kết nối! Sếp kiểm tra mã API nhé.", 'ai-msg');
             }
         }
 
-        document.getElementById('user-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 </html>
