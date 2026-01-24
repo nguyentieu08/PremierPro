@@ -2,127 +2,99 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fake Lag By Nguyễn Tiêu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nguyễn Tiêu Game</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #02050a; color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
-        
-        h1 { color: #00e5ff; text-shadow: 0 0 15px #00e5ff; margin-bottom: 30px; letter-spacing: 2px; }
-
-        .config-box { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 20px; border: 1px solid #1a2a44; text-align: center; width: 320px; z-index: 10; }
-        .config-box input { width: 100%; padding: 10px; margin: 10px 0; background: #101a2d; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
-        .config-box label { font-size: 12px; color: #888; display: block; text-align: left; }
-        
-        button#activate-btn { width: 100%; padding: 12px; background: linear-gradient(90deg, #00e5ff, #ff0055); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
-        /* Nút nổi (Floating Button) */
-        #floating-btn {
-            position: fixed; top: 50px; right: 20px;
-            background: radial-gradient(circle, #ff0055, #80002b);
-            color: white; border-radius: 50%;
-            display: none; align-items: center; justify-content: center;
-            cursor: move; z-index: 9999; font-weight: bold;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
-            user-select: none; border: 2px solid white;
-        }
-
-        #countdown-text { pointer-events: none; }
-
-        .footer { position: fixed; bottom: 20px; font-size: 10px; color: #444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #02050a; overflow: hidden; font-family: sans-serif; }
+        canvas { display: block; }
+        #ui { position: fixed; top: 10px; left: 10px; color: #00e5ff; font-weight: bold; text-shadow: 0 0 5px #00e5ff; pointer-events: none; }
     </style>
 </head>
 <body>
-
-    <h1>FAKE LAG BY NGUYỄN TIÊU</h1>
-
-    <div class="config-box">
-        <label>Số giây đếm ngược:</label>
-        <input type="number" id="sec-input" value="10" placeholder="Ví dụ: 30">
-        
-        <label>Kích thước nút nổi (px):</label>
-        <input type="number" id="size-input" value="60" placeholder="Ví dụ: 80">
-        
-        <button id="activate-btn" onclick="showFloatingBtn()">KÍCH HOẠT NÚT NỔI</button>
-    </div>
-
-    <div id="floating-btn">
-        <span id="countdown-text">START</span>
-    </div>
-
-    <div class="footer">DEVELOPED BY NGUYỄN TIÊU</div>
+    <div id="ui">ĐIỂM: <span id="score">0</span><br>GAME BY NGUYỄN TIÊU</div>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
-        const floatBtn = document.getElementById('floating-btn');
-        const countdownText = document.getElementById('countdown-text');
-        let isCounting = false;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
 
-        function showFloatingBtn() {
-            const size = document.getElementById('size-input').value || 60;
-            floatBtn.style.width = size + 'px';
-            floatBtn.style.height = size + 'px';
-            floatBtn.style.fontSize = (size / 3) + 'px';
-            floatBtn.style.display = 'flex';
-            countdownText.innerText = "START";
-            alert("Đã hiện nút nổi! Sếp có thể kéo nó đi khắp màn hình.");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let score = 0;
+        let player = { x: canvas.width / 2, y: canvas.height - 100, size: 30 };
+        let bullets = [];
+        let enemies = [];
+
+        // Điều khiển (Chuột hoặc Chạm)
+        function move(e) {
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            player.x = clientX;
+        }
+        window.addEventListener('mousemove', move);
+        window.addEventListener('touchmove', move);
+
+        // Tạo kẻ địch
+        function spawnEnemy() {
+            enemies.push({ x: Math.random() * canvas.width, y: -20, speed: 2 + Math.random() * 3 });
+        }
+        setInterval(spawnEnemy, 1000);
+
+        // Tự động bắn
+        setInterval(() => {
+            bullets.push({ x: player.x, y: player.y, speed: 7 });
+        }, 300);
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ phi thuyền Nguyễn Tiêu (Hình tam giác Neon)
+            ctx.fillStyle = "#00e5ff";
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y - player.size);
+            ctx.lineTo(player.x - player.size, player.y + player.size);
+            ctx.lineTo(player.x + player.size, player.y + player.size);
+            ctx.fill();
+
+            // Xử lý đạn
+            bullets.forEach((b, bi) => {
+                b.y -= b.speed;
+                ctx.fillStyle = "#ff0055";
+                ctx.fillRect(b.x - 2, b.y, 4, 10);
+                if(b.y < 0) bullets.splice(bi, 1);
+            });
+
+            // Xử lý kẻ địch
+            enemies.forEach((en, ei) => {
+                en.y += en.speed;
+                ctx.fillStyle = "#ffcc00";
+                ctx.beginPath();
+                ctx.arc(en.x, en.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Kiểm tra va chạm đạn
+                bullets.forEach((b, bi) => {
+                    let dist = Math.hypot(b.x - en.x, b.y - en.y);
+                    if(dist < 20) {
+                        enemies.splice(ei, 1);
+                        bullets.splice(bi, 1);
+                        score += 10;
+                        scoreEl.innerText = score;
+                    }
+                });
+
+                if(en.y > canvas.height) {
+                    enemies.splice(ei, 1);
+                    // Có thể thêm trừ điểm ở đây
+                }
+            });
+
+            requestAnimationFrame(update);
         }
 
-        // Xử lý đếm ngược khi ấn vào nút
-        floatBtn.onclick = function() {
-            if (isCounting) return;
-            
-            let seconds = parseInt(document.getElementById('sec-input').value) || 10;
-            isCounting = true;
-            floatBtn.style.background = "#333"; // Đổi màu khi đang chạy
-
-            const timer = setInterval(() => {
-                seconds--;
-                countdownText.innerText = seconds;
-                
-                if (seconds <= 0) {
-                    clearInterval(timer);
-                    countdownText.innerText = "DONE";
-                    floatBtn.style.background = "radial-gradient(circle, #00e5ff, #00808f)";
-                    isCounting = false;
-                    setTimeout(() => { countdownText.innerText = "START"; floatBtn.style.background = "radial-gradient(circle, #ff0055, #80002b)"; }, 2000);
-                }
-            }, 1000);
-        };
-
-        // Code xử lý Kéo thả (Drag) nút nổi
-        let isDragging = false;
-        let offset = [0, 0];
-
-        floatBtn.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            offset = [floatBtn.offsetLeft - e.clientX, floatBtn.offsetTop - e.clientY];
-        });
-
-        document.addEventListener('mouseup', () => { isDragging = false; });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                floatBtn.style.left = (e.clientX + offset[0]) + 'px';
-                floatBtn.style.top = (e.clientY + offset[1]) + 'px';
-                floatBtn.style.right = 'auto'; // Hủy vị trí mặc định
-            }
-        });
-
-        // Hỗ trợ kéo thả trên điện thoại
-        floatBtn.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            let touch = e.touches[0];
-            offset = [floatBtn.offsetLeft - touch.clientX, floatBtn.offsetTop - touch.clientY];
-        });
-
-        floatBtn.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                let touch = e.touches[0];
-                floatBtn.style.left = (touch.clientX + offset[0]) + 'px';
-                floatBtn.style.top = (touch.clientY + offset[1]) + 'px';
-                floatBtn.style.right = 'auto';
-            }
-        });
+        update();
     </script>
 </body>
 </html>
