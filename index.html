@@ -3,294 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HACKER_ULTIMATE_ACCESS_TERMINAL</title>
+    <title>LIGHTWEIGHT HACKER TERMINAL</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Font Retro Terminal */
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'); /* Font Code hiện đại */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
+        body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh;
-            font-family: 'Share Tech Mono', monospace; /* Font cho giao diện chính */
-            color: #0f0; text-shadow: 0 0 5px #0f0; /* Màu xanh neon chủ đạo */
-            position: relative;
-        }
-
-        /* --- GLITCH EFFECT --- */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 255, 0, 0.1); /* Màu xanh nhạt */
-            animation: glitch-color 0.5s infinite alternate; /* Hiệu ứng chớp màu */
-            pointer-events: none;
-            z-index: 99; /* Đảm bảo nằm trên cùng */
-        }
-        @keyframes glitch-color {
-            0% { transform: translate(0px, 0px); opacity: 0.1; background: rgba(0, 255, 0, 0.1); }
-            33% { transform: translate(-2px, 2px); opacity: 0.2; background: rgba(255, 0, 0, 0.1); } /* Đổi màu đỏ */
-            66% { transform: translate(2px, -2px); opacity: 0.2; background: rgba(0, 0, 255, 0.1); } /* Đổi màu xanh dương */
-            100% { transform: translate(0px, 0px); opacity: 0.1; background: rgba(0, 255, 0, 0.1); }
-        }
-
-        /* --- SCANLINE EFFECT --- */
+        /* Hiệu ứng Scanline nhẹ nhàng không gây lag */
         body::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.3) 51%);
-            background-size: 100% 4px; /* Dòng quét 2px cách nhau 2px */
-            pointer-events: none;
-            animation: scanline 8s linear infinite; /* Chuyển động chậm */
-            z-index: 98;
-        }
-        @keyframes scanline {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 100%; }
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 3px 100%; z-index: 2; pointer-events: none;
         }
 
-        /* --- KÝ TỰ BAY HỖN LOẠN 3D --- */
-        .chaos-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; perspective: 1000px; }
-        .chaos-particle {
-            position: absolute;
-            color: #0f0;
-            font-size: 14px;
-            opacity: 0.7;
-            text-shadow: 0 0 3px #0f0;
-            will-change: transform, opacity; /* Tối ưu hiệu suất */
-        }
-
-        /* --- LOGIN TERMINAL --- */
         .login-box {
             position: relative; z-index: 10;
-            width: 450px; padding: 40px;
-            background: rgba(0, 10, 0, 0.85);
-            border: 2px solid #0f0;
-            box-shadow: 0 0 40px rgba(0, 255, 0, 0.4), inset 0 0 15px rgba(0, 255, 0, 0.2);
-            text-align: left;
-            border-radius: 8px;
+            width: 350px; padding: 30px;
+            background: rgba(0, 20, 0, 0.9);
+            border: 1px solid #0f0;
+            box-shadow: 0 0 20px #0f0;
+            color: #0f0;
         }
 
-        h2 {
-            text-align: center; margin-bottom: 30px;
-            font-family: 'VT323', monospace; /* Font cổ điển cho tiêu đề */
-            font-size: 2.2em; text-transform: uppercase;
-            letter-spacing: 6px;
-            color: #0f0; text-shadow: 0 0 15px #0f0;
-        }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; letter-spacing: 3px; }
 
-        .input-group { margin-bottom: 25px; }
-        .input-group label {
-            display: block; font-size: 0.9em; margin-bottom: 8px;
-            color: #0f0; text-shadow: none; opacity: 0.8;
-        }
-        .input-group input {
-            width: 100%; padding: 12px; background: rgba(0, 20, 0, 0.7);
-            border: 1px solid #080; color: #0f0; outline: none;
-            font-size: 1em; transition: all 0.2s ease-in-out;
-            box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.1);
-        }
-        .input-group input:focus {
-            border-color: #0f0;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.3);
+        input {
+            width: 100%; padding: 10px; background: #000; border: 1px solid #060;
+            color: #0f0; margin-bottom: 15px; outline: none;
         }
 
         button {
-            width: 100%; padding: 15px; background: #0f0; border: none;
-            color: #000; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; transition: all 0.3s ease;
-            letter-spacing: 3px; font-size: 1.1em;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            width: 100%; padding: 12px; background: #0f0; color: #000;
+            border: none; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-        button:hover {
-            background: #000; color: #0f0; border: 1px solid #0f0;
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
-            transform: scale(1.02);
-        }
+        button:hover { background: #000; color: #0f0; border: 1px solid #0f0; }
 
-        #log {
-            margin-top: 30px; color: #0f0; font-size: 0.85em;
-            text-align: left; height: 120px; overflow-y: auto;
-            border-top: 1px dashed #040; padding-top: 15px;
-            line-height: 1.6;
-            text-shadow: none;
-            scrollbar-width: none; /* For Firefox */
-            -ms-overflow-style: none;  /* For IE and Edge */
-        }
-        #log::-webkit-scrollbar { /* For Chrome, Safari, Opera */
-            display: none;
-        }
-        .log-line {
-            white-space: pre-wrap; /* Giữ định dạng ký tự */
-        }
-        .log-error { color: #f00 !important; text-shadow: 0 0 5px #f00 !important; }
-        .log-success { color: #0f0 !important; font-weight: bold; text-shadow: 0 0 8px #0f0 !important; }
-        .log-warning { color: #ffcc00 !important; }
-
-        /* --- HIỆN THỊ DỮ LIỆU RÁC XUNG QUANH --- */
-        .data-overlay {
-            position: absolute;
-            color: rgba(0, 255, 0, 0.1);
-            font-family: 'VT323', monospace;
-            font-size: 0.8em;
-            pointer-events: none;
-        }
-        .data-top-left { top: 20px; left: 20px; }
-        .data-bottom-right { bottom: 20px; right: 20px; text-align: right; }
-        .data-center-left { top: 50%; left: 10%; transform: translateY(-50%); }
+        #log { margin-top: 15px; font-size: 11px; height: 60px; overflow: hidden; border-top: 1px solid #040; padding-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="chaos-bg" id="chaos-bg"></div>
 
-    <div class="data-overlay data-top-left">
-        <p>INIT_SEQ: 0xDEADBEEF</p>
-        <p>KERNEL_VER: 5.10.0-kali7</p>
-        <p>NETWORK_STATUS: OK</p>
-        <p>TARGET_IP: 192.168.1.100</p>
-    </div>
-    <div class="data-overlay data-bottom-right">
-        <p>DATA_STREAM: 0xABCDEF012345</p>
-        <p>PROCESS_ID: 987654</p>
-        <p>ENCRYPTION: AES-256</p>
-        <p>AUTH_FAILED_COUNT: 0</p>
-    </div>
-    <div class="data-overlay data-center-left">
-        <p>[0x1A2B]</p>
-        <p>[0x3C4D]</p>
-        <p>[0x5E6F]</p>
-    </div>
+    <canvas id="chaos-web"></canvas>
 
     <div class="login-box">
-        <h2>_H_A_C_K_E_R_L_O_G_I_N_</h2>
-        <div class="input-group">
-            <label>> AUTH_IDENTITY:</label>
-            <input type="text" id="user" value="admin" autocomplete="off">
-        </div>
-        <div class="input-group">
-            <label>> ENCRYPTED_PASSKEY:</label>
-            <input type="password" id="pass" value="123456">
-        </div>
-        <button onclick="initiateLogin()">_ACCESS_SYSTEM_CORE_</button>
+        <h2>SYS_LOGIN</h2>
+        <input type="text" id="u" placeholder="USER" autocomplete="off">
+        <input type="password" id="p" placeholder="PASS">
+        <button onclick="run()">DECRYPT</button>
         <div id="log"></div>
     </div>
 
     <script>
-        // --- HIỆU ỨNG KÝ TỰ BAY HỖN LOẠN 3D ---
-        const chaosBg = document.getElementById('chaos-bg');
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',./<>?`~";
+        const canvas = document.getElementById('chaos-web');
+        const ctx = canvas.getContext('2d');
+
+        let w, h;
+        const setSize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+        setSize();
+        window.onresize = setSize;
+
+        const chars = "01010101ABCDEFHIJKLMNOPQRSTUVWXYZ".split("");
         const particles = [];
-        const particleCount = 200; // Tăng số lượng hạt
 
-        class Particle {
-            constructor() {
-                this.element = document.createElement('span');
-                this.element.className = 'chaos-particle';
-                chaosBg.appendChild(this.element);
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * window.innerWidth;
-                this.y = Math.random() * window.innerHeight;
-                this.z = Math.random() * 500 - 250; // Vị trí Z cho hiệu ứng 3D
-                
-                this.vx = (Math.random() - 0.5) * 2; // Tốc độ X
-                this.vy = (Math.random() - 0.5) * 2; // Tốc độ Y
-                this.vz = (Math.random() - 0.5) * 2; // Tốc độ Z
-
-                this.char = chars[Math.floor(Math.random() * chars.length)];
-                this.element.innerText = this.char;
-                this.opacity = Math.random();
-                this.element.style.opacity = this.opacity;
-                this.element.style.fontSize = `${Math.random() * 10 + 10}px`; // Kích thước ngẫu nhiên
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.z += this.vz;
-
-                // Xử lý khi ra khỏi màn hình
-                if (this.x < 0 || this.x > window.innerWidth || this.y < 0 || this.y > window.innerHeight || this.z < -250 || this.z > 250) {
-                    this.reset(); // Reset lại vị trí
-                }
-
-                this.element.style.transform = `translate3d(${this.x}px, ${this.y}px, ${this.z}px)`;
-                if (Math.random() > 0.95) this.char = chars[Math.floor(Math.random() * chars.length)]; // Đổi ký tự liên tục
-                this.element.innerText = this.char;
-            }
+        // Tạo 100 hạt (vừa đủ đẹp, không gây lag)
+        for(let i=0; i<100; i++) {
+            particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random() - 0.5) * 3,
+                vy: (Math.random() - 0.5) * 3,
+                text: chars[Math.floor(Math.random() * chars.length)],
+                size: Math.random() * 15 + 10
+            });
         }
 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+        function draw() {
+            // Hiệu ứng đuôi mờ cực nhẹ
+            ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.fillStyle = "#0f0";
+            particles.forEach(p => {
+                ctx.font = p.size + "px monospace";
+                ctx.fillText(p.text, p.x, p.y);
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Đổi hướng khi chạm cạnh
+                if(p.x < 0 || p.x > w) p.vx *= -1;
+                if(p.y < 0 || p.y > h) p.vy *= -1;
+
+                // Đổi chữ ngẫu nhiên
+                if(Math.random() > 0.98) p.text = chars[Math.floor(Math.random() * chars.length)];
+            });
+            requestAnimationFrame(draw);
         }
+        draw();
 
-        function animateParticles() {
-            particles.forEach(p => p.update());
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-
-        // --- LOGIC ĐĂNG NHẬP VỚI HIỆU ỨNG GÕ CHỮ ---
-        const log = document.getElementById('log');
-        let logIndex = 0;
-        let logLines = [];
-
-        function typeWriter(text, lineElement, callback) {
-            let i = 0;
-            lineElement.innerText = '';
-            const speed = 20; // Tốc độ gõ chữ (ms)
-            function type() {
-                if (i < text.length) {
-                    lineElement.innerText += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
+        function run() {
+            const l = document.getElementById('log');
+            l.innerHTML = "> Scanning credentials...<br>";
+            setTimeout(() => {
+                if(document.getElementById('u').value === "admin" && document.getElementById('p').value === "123456") {
+                    l.innerHTML += "> [SUCCESS] ACCESS GRANTED.";
+                    alert("Chào mừng sếp!");
                 } else {
-                    if (callback) callback();
+                    l.innerHTML += "> [FAILED] UNAUTHORIZED.";
                 }
-            }
-            type();
+            }, 600);
         }
-
-        function addLog(text, className = "") {
-            const line = document.createElement('div');
-            line.className = 'log-line ' + className;
-            log.prepend(line); // Thêm vào đầu để log mới nhất ở trên
-            logLines.push({ element: line, text: text, className: className }); // Lưu lại để gõ chữ
-            log.scrollTop = 0; // Luôn cuộn lên đầu
-
-            // Gõ từng chữ một
-            typeWriter(text, line);
-        }
-
-        async function initiateLogin() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-
-            addLog(">>> Initiating connection to remote server...");
-            await new Promise(r => setTimeout(r, 800)); // Dừng 0.8s
-
-            addLog(">>> Authenticating credentials...");
-            await new Promise(r => setTimeout(r, 1200));
-
-            if (u === "admin" && p === "123456") {
-                addLog(">>> ACCESS GRANTED. Welcome to the main system, Admin.", "log-success");
-                await new Promise(r => setTimeout(r, 1500));
-                addLog("[SYSTEM_ALERT] Initiating secure data transfer protocols...");
-                // alert("Hệ thống đã mở! Chào mừng Hacker.");
-            } else {
-                addLog(">>> ACCESS DENIED. Invalid username or encrypted passkey.", "log-error");
-                await new Promise(r => setTimeout(r, 800));
-                addLog(">>> Intrusion detected. Logging attempt.", "log-warning");
-            }
-        }
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            // Cập nhật vị trí các hạt khi resize
-            particles.forEach(p => p.reset());
-        });
     </script>
 </body>
 </html>
