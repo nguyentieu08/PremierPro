@@ -3,109 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HACKER CHAOS TERMINAL</title>
+    <title>HACKER_ULTIMATE_ACCESS_TERMINAL</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
-        body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        /* Canvas làm nền ký tự bay */
-        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Font Retro Terminal */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'); /* Font Code hiện đại */
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            font-family: 'Share Tech Mono', monospace; /* Font cho giao diện chính */
+            color: #0f0; text-shadow: 0 0 5px #0f0; /* Màu xanh neon chủ đạo */
+            position: relative;
+        }
+
+        /* --- GLITCH EFFECT --- */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 255, 0, 0.1); /* Màu xanh nhạt */
+            animation: glitch-color 0.5s infinite alternate; /* Hiệu ứng chớp màu */
+            pointer-events: none;
+            z-index: 99; /* Đảm bảo nằm trên cùng */
+        }
+        @keyframes glitch-color {
+            0% { transform: translate(0px, 0px); opacity: 0.1; background: rgba(0, 255, 0, 0.1); }
+            33% { transform: translate(-2px, 2px); opacity: 0.2; background: rgba(255, 0, 0, 0.1); } /* Đổi màu đỏ */
+            66% { transform: translate(2px, -2px); opacity: 0.2; background: rgba(0, 0, 255, 0.1); } /* Đổi màu xanh dương */
+            100% { transform: translate(0px, 0px); opacity: 0.1; background: rgba(0, 255, 0, 0.1); }
+        }
+
+        /* --- SCANLINE EFFECT --- */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.3) 51%);
+            background-size: 100% 4px; /* Dòng quét 2px cách nhau 2px */
+            pointer-events: none;
+            animation: scanline 8s linear infinite; /* Chuyển động chậm */
+            z-index: 98;
+        }
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100%; }
+        }
+
+        /* --- KÝ TỰ BAY HỖN LOẠN 3D --- */
+        .chaos-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; perspective: 1000px; }
+        .chaos-particle {
+            position: absolute;
+            color: #0f0;
+            font-size: 14px;
+            opacity: 0.7;
+            text-shadow: 0 0 3px #0f0;
+            will-change: transform, opacity; /* Tối ưu hiệu suất */
+        }
+
+        /* --- LOGIN TERMINAL --- */
         .login-box {
             position: relative; z-index: 10;
-            width: 380px; padding: 30px;
-            background: rgba(0, 10, 0, 0.8);
+            width: 450px; padding: 40px;
+            background: rgba(0, 10, 0, 0.85);
             border: 2px solid #0f0;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
-            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.4), inset 0 0 15px rgba(0, 255, 0, 0.2);
+            text-align: left;
+            border-radius: 8px;
         }
 
-        h2 { color: #0f0; margin-bottom: 25px; letter-spacing: 5px; text-shadow: 0 0 10px #0f0; }
+        h2 {
+            text-align: center; margin-bottom: 30px;
+            font-family: 'VT323', monospace; /* Font cổ điển cho tiêu đề */
+            font-size: 2.2em; text-transform: uppercase;
+            letter-spacing: 6px;
+            color: #0f0; text-shadow: 0 0 15px #0f0;
+        }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { color: #0f0; font-size: 11px; display: block; margin-bottom: 5px; opacity: 0.7; }
+        .input-group { margin-bottom: 25px; }
+        .input-group label {
+            display: block; font-size: 0.9em; margin-bottom: 8px;
+            color: #0f0; text-shadow: none; opacity: 0.8;
+        }
         .input-group input {
-            width: 100%; padding: 12px; background: rgba(0, 40, 0, 0.5);
+            width: 100%; padding: 12px; background: rgba(0, 20, 0, 0.7);
             border: 1px solid #080; color: #0f0; outline: none;
-            font-size: 16px; transition: 0.3s;
+            font-size: 1em; transition: all 0.2s ease-in-out;
+            box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.1);
         }
-        .input-group input:focus { border-color: #0f0; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); }
+        .input-group input:focus {
+            border-color: #0f0;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.3);
+        }
 
         button {
             width: 100%; padding: 15px; background: #0f0; border: none;
             color: #000; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; transition: 0.3s; letter-spacing: 2px;
+            text-transform: uppercase; transition: all 0.3s ease;
+            letter-spacing: 3px; font-size: 1.1em;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
         }
-        button:hover { background: #000; color: #0f0; border: 1px solid #0f0; }
+        button:hover {
+            background: #000; color: #0f0; border: 1px solid #0f0;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
+            transform: scale(1.02);
+        }
 
-        #log { 
-            margin-top: 20px; color: #0f0; font-size: 10px; 
-            text-align: left; height: 80px; overflow: hidden;
-            border-top: 1px solid #040; padding-top: 10px;
-            line-height: 1.4;
+        #log {
+            margin-top: 30px; color: #0f0; font-size: 0.85em;
+            text-align: left; height: 120px; overflow-y: auto;
+            border-top: 1px dashed #040; padding-top: 15px;
+            line-height: 1.6;
+            text-shadow: none;
+            scrollbar-width: none; /* For Firefox */
+            -ms-overflow-style: none;  /* For IE and Edge */
         }
+        #log::-webkit-scrollbar { /* For Chrome, Safari, Opera */
+            display: none;
+        }
+        .log-line {
+            white-space: pre-wrap; /* Giữ định dạng ký tự */
+        }
+        .log-error { color: #f00 !important; text-shadow: 0 0 5px #f00 !important; }
+        .log-success { color: #0f0 !important; font-weight: bold; text-shadow: 0 0 8px #0f0 !important; }
+        .log-warning { color: #ffcc00 !important; }
+
+        /* --- HIỆN THỊ DỮ LIỆU RÁC XUNG QUANH --- */
+        .data-overlay {
+            position: absolute;
+            color: rgba(0, 255, 0, 0.1);
+            font-family: 'VT323', monospace;
+            font-size: 0.8em;
+            pointer-events: none;
+        }
+        .data-top-left { top: 20px; left: 20px; }
+        .data-bottom-right { bottom: 20px; right: 20px; text-align: right; }
+        .data-center-left { top: 50%; left: 10%; transform: translateY(-50%); }
     </style>
 </head>
 <body>
+    <div class="chaos-bg" id="chaos-bg"></div>
 
-    <canvas id="chaos-canvas"></canvas>
+    <div class="data-overlay data-top-left">
+        <p>INIT_SEQ: 0xDEADBEEF</p>
+        <p>KERNEL_VER: 5.10.0-kali7</p>
+        <p>NETWORK_STATUS: OK</p>
+        <p>TARGET_IP: 192.168.1.100</p>
+    </div>
+    <div class="data-overlay data-bottom-right">
+        <p>DATA_STREAM: 0xABCDEF012345</p>
+        <p>PROCESS_ID: 987654</p>
+        <p>ENCRYPTION: AES-256</p>
+        <p>AUTH_FAILED_COUNT: 0</p>
+    </div>
+    <div class="data-overlay data-center-left">
+        <p>[0x1A2B]</p>
+        <p>[0x3C4D]</p>
+        <p>[0x5E6F]</p>
+    </div>
 
     <div class="login-box">
-        <h2>CORE_ACCESS</h2>
+        <h2>_H_A_C_K_E_R_L_O_G_I_N_</h2>
         <div class="input-group">
-            <label>ID_ENTRY:</label>
-            <input type="text" id="user" placeholder="admin" autocomplete="off">
+            <label>> AUTH_IDENTITY:</label>
+            <input type="text" id="user" value="admin" autocomplete="off">
         </div>
         <div class="input-group">
-            <label>ENCRYPTED_KEY:</label>
-            <input type="password" id="pass" placeholder="******">
+            <label>> ENCRYPTED_PASSKEY:</label>
+            <input type="password" id="pass" value="123456">
         </div>
-        <button onclick="execute()">INITIALIZE_DECRYPT</button>
+        <button onclick="initiateLogin()">_ACCESS_SYSTEM_CORE_</button>
         <div id="log"></div>
     </div>
 
     <script>
-        const canvas = document.getElementById('chaos-canvas');
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const chars = "ｦｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ23456789$+-*/=%<>#!?".split("");
+        // --- HIỆU ỨNG KÝ TỰ BAY HỖN LOẠN 3D ---
+        const chaosBg = document.getElementById('chaos-bg');
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',./<>?`~";
         const particles = [];
-        const particleCount = 150;
+        const particleCount = 200; // Tăng số lượng hạt
 
         class Particle {
             constructor() {
+                this.element = document.createElement('span');
+                this.element.className = 'chaos-particle';
+                chaosBg.appendChild(this.element);
                 this.reset();
             }
             reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                // Bay đủ mọi hướng (từ -2 đến 2)
-                this.vx = (Math.random() - 0.5) * 4; 
-                this.vy = (Math.random() - 0.5) * 4;
+                this.x = Math.random() * window.innerWidth;
+                this.y = Math.random() * window.innerHeight;
+                this.z = Math.random() * 500 - 250; // Vị trí Z cho hiệu ứng 3D
+                
+                this.vx = (Math.random() - 0.5) * 2; // Tốc độ X
+                this.vy = (Math.random() - 0.5) * 2; // Tốc độ Y
+                this.vz = (Math.random() - 0.5) * 2; // Tốc độ Z
+
                 this.char = chars[Math.floor(Math.random() * chars.length)];
-                this.fontSize = Math.random() * 15 + 10;
+                this.element.innerText = this.char;
                 this.opacity = Math.random();
-            }
-            draw() {
-                ctx.fillStyle = `rgba(0, 255, 0, ${this.opacity})`;
-                ctx.font = `${this.fontSize}px monospace`;
-                ctx.fillText(this.char, this.x, this.y);
+                this.element.style.opacity = this.opacity;
+                this.element.style.fontSize = `${Math.random() * 10 + 10}px`; // Kích thước ngẫu nhiên
             }
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
+                this.z += this.vz;
 
-                // Nếu bay ra khỏi màn hình thì xuất hiện lại ở phía đối diện
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.y < 0) this.y = canvas.height;
-                if (this.y > canvas.height) this.y = 0;
+                // Xử lý khi ra khỏi màn hình
+                if (this.x < 0 || this.x > window.innerWidth || this.y < 0 || this.y > window.innerHeight || this.z < -250 || this.z > 250) {
+                    this.reset(); // Reset lại vị trí
+                }
 
-                // Đổi ký tự ngẫu nhiên cho ảo
-                if (Math.random() > 0.98) this.char = chars[Math.floor(Math.random() * chars.length)];
+                this.element.style.transform = `translate3d(${this.x}px, ${this.y}px, ${this.z}px)`;
+                if (Math.random() > 0.95) this.char = chars[Math.floor(Math.random() * chars.length)]; // Đổi ký tự liên tục
+                this.element.innerText = this.char;
             }
         }
 
@@ -113,47 +225,71 @@
             particles.push(new Particle());
         }
 
-        function animate() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.1)"; // Tạo hiệu ứng đuôi mờ
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
+        function animateParticles() {
+            particles.forEach(p => p.update());
+            requestAnimationFrame(animateParticles);
         }
-        animate();
+        animateParticles();
 
-        // Xử lý đăng nhập
-        function execute() {
+        // --- LOGIC ĐĂNG NHẬP VỚI HIỆU ỨNG GÕ CHỮ ---
+        const log = document.getElementById('log');
+        let logIndex = 0;
+        let logLines = [];
+
+        function typeWriter(text, lineElement, callback) {
+            let i = 0;
+            lineElement.innerText = '';
+            const speed = 20; // Tốc độ gõ chữ (ms)
+            function type() {
+                if (i < text.length) {
+                    lineElement.innerText += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    if (callback) callback();
+                }
+            }
+            type();
+        }
+
+        function addLog(text, className = "") {
+            const line = document.createElement('div');
+            line.className = 'log-line ' + className;
+            log.prepend(line); // Thêm vào đầu để log mới nhất ở trên
+            logLines.push({ element: line, text: text, className: className }); // Lưu lại để gõ chữ
+            log.scrollTop = 0; // Luôn cuộn lên đầu
+
+            // Gõ từng chữ một
+            typeWriter(text, line);
+        }
+
+        async function initiateLogin() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            const logBox = document.getElementById('log');
 
-            const addLog = (text) => {
-                const line = document.createElement('div');
-                line.innerText = "> " + text;
-                logBox.prepend(line);
-            };
+            addLog(">>> Initiating connection to remote server...");
+            await new Promise(r => setTimeout(r, 800)); // Dừng 0.8s
 
-            addLog("Breaching firewall...");
-            setTimeout(() => {
-                addLog("Analyzing packet data...");
-                setTimeout(() => {
-                    if(u === "admin" && p === "123456") {
-                        addLog("ACCESS GRANTED! System Override.");
-                        alert("Xâm nhập thành công!");
-                    } else {
-                        addLog("ACCESS DENIED. Intruder alert!");
-                    }
-                }, 1000);
-            }, 500);
+            addLog(">>> Authenticating credentials...");
+            await new Promise(r => setTimeout(r, 1200));
+
+            if (u === "admin" && p === "123456") {
+                addLog(">>> ACCESS GRANTED. Welcome to the main system, Admin.", "log-success");
+                await new Promise(r => setTimeout(r, 1500));
+                addLog("[SYSTEM_ALERT] Initiating secure data transfer protocols...");
+                // alert("Hệ thống đã mở! Chào mừng Hacker.");
+            } else {
+                addLog(">>> ACCESS DENIED. Invalid username or encrypted passkey.", "log-error");
+                await new Promise(r => setTimeout(r, 800));
+                addLog(">>> Intrusion detected. Logging attempt.", "log-warning");
+            }
         }
 
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            // Cập nhật vị trí các hạt khi resize
+            particles.forEach(p => p.reset());
         });
     </script>
 </body>
