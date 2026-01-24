@@ -3,89 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Tiêu 3D World</title>
+    <title>Nguyễn Tiêu Survival 3D</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
-        #info {
-            position: absolute; top: 10px; width: 100%; text-align: center;
-            color: #00e5ff; font-family: sans-serif; pointer-events: none;
-            text-shadow: 0 0 10px #00e5ff;
-        }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        #crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        #ui { position: fixed; bottom: 20px; left: 20px; color: #00e5ff; text-shadow: 0 0 5px #000; }
+        #joy { position: fixed; bottom: 40px; right: 40px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
     </style>
 </head>
 <body>
-    <div id="info">NGUYỄN TIÊU 3D ENGINE<br>Vuốt để xoay không gian</div>
+    <div id="crosshair"></div>
+    <div id="ui">HP: 100 | AMMO: 30<br>FREE FIRE CLONE BY NGUYỄN TIÊU</div>
+    <div id="joy">XOAY CHUỘT/VUỐT ĐỂ NHÌN</div>
 
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-            }
-        }
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
 
     <script type="module">
         import * as THREE from 'three';
 
-        // 1. Khởi tạo màn hình (Scene)
+        // 1. Setup Scene & Camera
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb); // Bầu trời
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // 2. Tạo vật thể 3D (Viên kim cương Neon)
-        const geometry = new THREE.OctahedronGeometry(1, 0);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: 0x00e5ff, 
-            wireframe: true // Hiện khung lưới cho ngầu
-        });
-        const crystal = new THREE.Mesh(geometry, material);
-        scene.add(crystal);
+        // 2. Mặt đất (Đảo quân sự mini)
+        const floorGeo = new THREE.PlaneGeometry(100, 100);
+        const floorMat = new THREE.MeshPhongMaterial({ color: 0x228b22 }); // Màu cỏ
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
 
-        // 3. Tạo dải ngân hà (Stars)
-        const starGeometry = new THREE.BufferGeometry();
-        const starCount = 1000;
-        const posArray = new Float32Array(starCount * 3);
-        for(let i=0; i < starCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 10;
-        }
-        starGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const starMaterial = new THREE.PointsMaterial({ size: 0.005, color: 0xffffff });
-        const starMesh = new THREE.Points(starGeometry, starMaterial);
-        scene.add(starMesh);
+        // 3. Nhân vật của sếp (Tạm thời là một khối hộp)
+        const playerGeo = new THREE.BoxGeometry(1, 2, 1);
+        const playerMat = new THREE.MeshPhongMaterial({ color: 0xff0055 });
+        const player = new THREE.Mesh(playerGeo, playerMat);
+        player.position.y = 1;
+        scene.add(player);
 
-        camera.position.z = 3;
+        // 4. Ánh sáng
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 7.5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
 
-        // 4. Xử lý xoay theo cảm ứng/chuột
-        let mouseX = 0, mouseY = 0;
+        // 5. Điều khiển
+        let keys = {};
+        window.addEventListener('keydown', (e) => keys[e.code] = true);
+        window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        let yaw = 0; // Xoay trái phải
         document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth) - 0.5;
-            mouseY = (e.clientY / window.innerHeight) - 0.5;
+            yaw -= e.movementX * 0.002;
         });
 
-        // 5. Vòng lặp Render (Animation)
+        // 6. Vòng lặp Game
         function animate() {
             requestAnimationFrame(animate);
-            
-            crystal.rotation.y += 0.01;
-            crystal.rotation.x += 0.005;
 
-            // Camera di chuyển nhẹ theo chuột
-            camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
+            // Di chuyển
+            const speed = 0.1;
+            if(keys['KeyW']) {
+                player.position.x += Math.sin(yaw) * speed;
+                player.position.z += Math.cos(yaw) * speed;
+            }
+            if(keys['KeyS']) {
+                player.position.x -= Math.sin(yaw) * speed;
+                player.position.z -= Math.cos(yaw) * speed;
+            }
+
+            player.rotation.y = yaw;
+
+            // Camera đi theo nhân vật (Góc nhìn thứ 3)
+            camera.position.x = player.position.x - Math.sin(yaw) * 5;
+            camera.position.z = player.position.z - Math.cos(yaw) * 5;
+            camera.position.y = player.position.y + 3;
+            camera.lookAt(player.position);
 
             renderer.render(scene, camera);
         }
 
+        animate();
+
+        // Responsive
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
-        animate();
     </script>
 </body>
 </html>
