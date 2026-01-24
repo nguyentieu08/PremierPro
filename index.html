@@ -2,190 +2,96 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nguyễn Tiêu Survival Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập Hệ Thống</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #87ceeb; touch-action: none; font-family: sans-serif; }
-        #ui { position: fixed; top: 15px; left: 15px; color: white; text-shadow: 2px 2px 4px #000; pointer-events: none; z-index: 10; }
-        #alive-count { color: #ffcc00; font-size: 24px; font-weight: bold; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        /* HP Bar */
-        .hp-box { width: 180px; height: 12px; background: rgba(0,0,0,0.5); border: 2px solid #fff; border-radius: 6px; margin-top: 8px; }
-        #hp-fill { width: 100%; height: 100%; background: #ff0055; transition: 0.2s; }
+        body {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e); /* Màu nền huyền bí */
+            overflow: hidden;
+        }
 
-        /* Nút điều khiển bên phải */
-        .btn-action { position: fixed; width: 60px; height: 60px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; z-index: 20; }
-        #fire-btn { bottom: 40px; right: 140px; width: 90px; height: 90px; background: rgba(255,0,0,0.6); font-size: 20px; }
-        #scope-btn { bottom: 150px; right: 40px; background: rgba(0,229,255,0.4); }
-        #jump-btn { bottom: 40px; right: 40px; }
-        #crouch-btn { bottom: 100px; right: 110px; }
-        #prone-btn { bottom: 180px; right: 110px; }
+        /* Hiệu ứng vòng tròn bay lơ lửng cho đẹp */
+        body::before {
+            content: ''; position: absolute; width: 300px; height: 300px;
+            background: linear-gradient(#ff0055, #ffdd00); border-radius: 50%;
+            top: 10%; left: 15%; z-index: -1; filter: blur(30px); opacity: 0.5;
+        }
+        body::after {
+            content: ''; position: absolute; width: 250px; height: 250px;
+            background: linear-gradient(#00d2ff, #3a7bd5); border-radius: 50%;
+            bottom: 10%; right: 15%; z-index: -1; filter: blur(30px); opacity: 0.5;
+        }
 
-        #joy-base { position: fixed; bottom: 40px; left: 40px; width: 110px; height: 110px; background: rgba(255,255,255,0.2); border-radius: 50%; }
-        #joy-stick { position: absolute; top: 30px; left: 30px; width: 50px; height: 50px; background: #00e5ff; border-radius: 50%; }
-        #crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid #0f0; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; transition: 0.2s; }
+        .login-card {
+            width: 380px; padding: 40px; border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1); /* Hiệu ứng kính mờ */
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+            text-align: center; color: white;
+        }
+
+        h2 { margin-bottom: 30px; letter-spacing: 2px; text-transform: uppercase; }
+
+        .input-group { position: relative; width: 100%; margin-bottom: 25px; }
+
+        .input-group input {
+            width: 100%; padding: 12px 20px; background: rgba(255, 255, 255, 0.1);
+            border: none; outline: none; border-radius: 30px;
+            color: white; font-size: 16px; border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .input-group input:focus { border: 1px solid #00d2ff; background: rgba(255, 255, 255, 0.2); }
+
+        .login-btn {
+            width: 100%; padding: 12px; border: none; border-radius: 30px;
+            background: #fff; color: #302b63; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+
+        .login-btn:hover { background: #00d2ff; color: #fff; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3); }
+
+        #message { margin-top: 20px; font-size: 14px; min-height: 20px; }
+        .error { color: #ff4d4d; }
+        .success { color: #00ff88; }
     </style>
 </head>
 <body>
-    <div id="ui">
-        ALIVE: <span id="alive-count">50</span>/50<br>
-        BO: <span id="zone-size">500</span>m
-        <div class="hp-box"><div id="hp-fill"></div></div>
+
+    <div class="login-card">
+        <h2>Đăng Nhập</h2>
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Tài khoản">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Mật khẩu">
+        </div>
+        <button class="login-btn" onclick="checkLogin()">VÀO HỆ THỐNG</button>
+        <div id="message"></div>
     </div>
-    
-    <div id="crosshair"></div>
-    <div id="joy-base"><div id="joy-stick"></div></div>
-    
-    <div id="fire-btn" class="btn-action">BẮN</div>
-    <div id="scope-btn" class="btn-action">SCOPE</div>
-    <div id="jump-btn" class="btn-action">NHẢY</div>
-    <div id="crouch-btn" class="btn-action">NGỒI</div>
-    <div id="prone-btn" class="btn-action">NẰM</div>
 
-    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } } </script>
+    <script>
+        function checkLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const msg = document.getElementById('message');
 
-    <script type="module">
-        import * as THREE from 'three';
-
-        // --- CÀI ĐẶT CƠ BẢN ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1500);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const sun = new THREE.DirectionalLight(0xffffff, 1); sun.position.set(50, 100, 50); scene.add(sun);
-
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshPhongMaterial({ color: 0x3b5d38 }));
-        ground.rotation.x = -Math.PI/2; scene.add(ground);
-
-        // --- TẠO NHÂN VẬT CẦM SÚNG ---
-        function createChar(color) {
-            const g = new THREE.Group();
-            const m = new THREE.MeshPhongMaterial({ color });
-            
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.5), m); torso.position.y = 1.5; g.add(torso);
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), m); head.position.y = 2.3; g.add(head);
-            const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1, 0.3), m); lLeg.position.set(0.2, 0.5, 0); g.add(lLeg);
-            const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1, 0.3), m); rLeg.position.set(-0.2, 0.5, 0); g.add(rLeg);
-            
-            // Tay cầm súng
-            const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1), m); arm.position.set(0.4, 1.6, 0.4); g.add(arm);
-            const gun = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.3, 1.2), new THREE.MeshPhongMaterial({color: 0x111111}));
-            gun.position.set(0.4, 1.6, 1); g.add(gun);
-
-            g.parts = { lLeg, rLeg, torso, head, arm, gun };
-            return g;
-        }
-
-        const player = createChar(0x00e5ff); scene.add(player);
-        const enemies = [];
-        for(let i=0; i<49; i++) {
-            const bot = createChar(0xff4444);
-            bot.position.set(Math.random()*600-300, 0, Math.random()*600-300);
-            bot.userData = { hp: 100, lastShoot: 0 };
-            scene.add(bot); enemies.push(bot);
-        }
-
-        // --- BIẾN TRẠNG THÁI ---
-        let joyId = null, lookId = null, moveX = 0, moveY = 0, yaw = 0, lastX = 0;
-        let playerHP = 100, isScope = false, pState = 'stand', vy = 0, zoneRadius = 500;
-        const stick = document.getElementById('joy-stick');
-
-        // --- ĐIỀU KHIỂN ---
-        window.addEventListener('touchstart', (e) => {
-            for(let t of e.changedTouches) {
-                if(t.clientX < window.innerWidth/2) joyId = t.identifier;
-                else if(!t.target.classList.contains('btn-action')) { lookId = t.identifier; lastX = t.clientX; }
-            }
-        });
-        window.addEventListener('touchmove', (e) => {
-            for(let t of e.touches) {
-                if(t.identifier === joyId) {
-                    let rect = document.getElementById('joy-base').getBoundingClientRect();
-                    let dx = t.clientX-(rect.left+55), dy = t.clientY-(rect.top+55);
-                    let d = Math.min(Math.hypot(dx,dy), 50), a = Math.atan2(dy,dx);
-                    stick.style.transform = `translate(${Math.cos(a)*d}px, ${Math.sin(a)*d}px)`;
-                    moveX = Math.cos(a)*(d/50); moveY = Math.sin(a)*(d/50);
-                }
-                if(t.identifier === lookId) { yaw -= (t.clientX - lastX)*0.007; lastX = t.clientX; }
-            }
-        });
-        window.addEventListener('touchend', (e) => {
-            for(let t of e.changedTouches) {
-                if(t.identifier === joyId) { joyId = null; moveX = moveY = 0; stick.style.transform = ''; }
-                if(t.identifier === lookId) lookId = null;
-            }
-        });
-
-        // Nút hành động
-        document.getElementById('jump-btn').onclick = () => { if(player.position.y <= 0.1) vy = 0.3; };
-        document.getElementById('crouch-btn').onclick = () => { pState = (pState==='crouch')?'stand':'crouch'; };
-        document.getElementById('prone-btn').onclick = () => { pState = (pState==='prone')?'stand':'prone'; };
-        document.getElementById('scope-btn').onclick = () => { 
-            isScope = !isScope; 
-            document.getElementById('crosshair').style.scale = isScope ? "2" : "1";
-        };
-
-        // Bắn
-        function shoot(from, isP) {
-            const tracer = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 5), new THREE.MeshBasicMaterial({color: 0xffff00}));
-            tracer.position.copy(from.position); tracer.position.y += 1.5;
-            tracer.rotation.y = isP ? yaw : from.rotation.y;
-            scene.add(tracer); setTimeout(() => scene.remove(tracer), 100);
-
-            const ray = new THREE.Raycaster();
-            let dir = isP ? new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)) : new THREE.Vector3(-Math.sin(from.rotation.y), 0, -Math.cos(from.rotation.y));
-            ray.set(from.position, dir);
-            const hits = ray.intersectObjects(isP ? enemies : [player, ...enemies], true);
-            if(hits.length > 0) {
-                let target = hits[0].object; while(target.parent !== scene) target = target.parent;
-                if(target === player) { playerHP -= 5; }
-                else { target.userData.hp -= 34; if(target.userData.hp <= 0) { scene.remove(target); enemies.splice(enemies.indexOf(target),1); } }
+            // Tài khoản & Mật khẩu cố định của sếp đây
+            if (user === "admin" && pass === "123456") {
+                msg.innerHTML = "<span class='success'>✅ Đăng nhập thành công! Đang chuyển hướng...</span>";
+                msg.className = "success";
+                setTimeout(() => {
+                    alert("Chào mừng Sếp đã quay trở lại!");
+                }, 1000);
+            } else {
+                msg.innerHTML = "<span class='error'>❌ Sai tài khoản hoặc mật khẩu!</span>";
+                msg.className = "error";
             }
         }
-        document.getElementById('fire-btn').addEventListener('touchstart', () => shoot(player, true));
-
-        // --- GAME LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-            // Vòng Bo & HP
-            if(zoneRadius > 20) zoneRadius -= 0.05;
-            document.getElementById('zone-size').innerText = Math.floor(zoneRadius);
-            document.getElementById('hp-fill').style.width = playerHP + "%";
-
-            // Tư thế
-            if(pState === 'crouch') { player.scale.y = 0.6; player.position.y = 0.6; }
-            else if(pState === 'prone') { player.rotation.x = -Math.PI/2.5; player.position.y = 0.3; }
-            else { player.scale.y = 1; player.rotation.x = 0; }
-
-            // Nhảy & Trọng lực
-            player.position.y += vy;
-            if(player.position.y > 0) vy -= 0.015;
-            else { player.position.y = 0; vy = 0; }
-
-            // Di chuyển
-            player.position.x += (Math.sin(yaw)*moveY + Math.cos(yaw)*moveX)*0.2;
-            player.position.z += (Math.cos(yaw)*moveY - Math.sin(yaw)*moveX)*0.2;
-            player.rotation.y = yaw;
-
-            // Bot AI (Bắn nhau & Bắn sếp)
-            enemies.forEach(bot => {
-                bot.rotation.y += 0.01;
-                if(Math.random() < 0.005) shoot(bot, false);
-            });
-
-            // Camera Scope
-            let camDist = isScope ? 3 : 8;
-            camera.position.set(player.position.x + Math.sin(yaw)*camDist, 4, player.position.z + Math.cos(yaw)*camDist);
-            camera.lookAt(player.position.x, 2, player.position.z);
-            
-            document.getElementById('alive-count').innerText = enemies.length + 1;
-            renderer.render(scene, camera);
-        }
-        animate();
     </script>
 </body>
 </html>
