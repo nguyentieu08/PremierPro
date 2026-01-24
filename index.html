@@ -5,180 +5,230 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PANEL NGUYỄN TIÊU DEV</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #000;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            perspective: 1500px;
+            perspective: 2000px;
             font-family: 'Inter', sans-serif;
+            /* NỀN ĐỔI MÀU LIÊN TỤC */
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364, #7028e4, #e5b2ca);
+            background-size: 400% 400%;
+            animation: auroraMovement 12s ease infinite;
         }
 
-        /* Nền vũ trụ xuyên tường */
-        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        @keyframes auroraMovement {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-        /* Container chính 3D */
-        .main-container {
+        /* Lớp bụi sáng lấp lánh phía sau */
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
+
+        .main-3d-wrapper {
             position: relative;
             z-index: 10;
             transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
         }
 
-        /* Hiệu ứng viền cầu vồng chạy cực mạnh */
-        .glass-wrapper {
+        /* VIỀN PHẢN QUANG CẦU VỒNG */
+        .neon-border {
             padding: 3px;
-            border-radius: 40px;
-            background: linear-gradient(90deg, #ff0000, #ff00ff, #00ffff, #00ff00, #ffff00, #ff0000);
-            background-size: 400% 400%;
-            animation: rainbow-border 4s linear infinite;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
+            border-radius: 45px;
+            background: linear-gradient(90deg, #00f2fe, #4facfe, #00f2fe, #f093fb, #f5576c);
+            background-size: 200% auto;
+            animation: shiny 3s linear infinite;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        @keyframes rainbow-border {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
+        @keyframes shiny {
+            to { background-position: 200% center; }
         }
 
-        /* Thân hộp Login */
+        /* HỘP KÍNH 3D */
         .glass-card {
-            width: 450px;
-            padding: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(40px);
-            border-radius: 38px;
+            width: 440px;
+            padding: 45px;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border-radius: 42px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
             text-align: center;
             transform-style: preserve-3d;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Chiều sâu cho từng phần tử */
-        .depth-h { transform: translateZ(80px); font-family: 'Orbitron', sans-serif; letter-spacing: 5px; color: #00ffff; text-shadow: 0 0 20px #00ffff; }
-        .depth-p { transform: translateZ(50px); color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 5px; }
-        .depth-input { transform: translateZ(40px); }
-        .depth-btn { transform: translateZ(100px); }
-
-        .sys-header {
-            display: flex; justify-content: space-between;
-            font-size: 10px; margin-bottom: 30px;
-            text-transform: uppercase; letter-spacing: 2px;
+        /* HIỆU ỨNG CHIỀU SÂU (Layer 3D) */
+        .h-title { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #fff, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translateZ(90px); /* Bay xa nhất */
+            text-align: center;
         }
+
+        .sub-title { 
+            font-size: 10px; 
+            letter-spacing: 3px; 
+            opacity: 0.6; 
+            margin-bottom: 25px;
+            transform: translateZ(60px);
+        }
+
+        .clock-display {
+            font-size: 13px;
+            color: #00f2fe;
+            margin-bottom: 20px;
+            transform: translateZ(50px);
+        }
+
+        .input-group { transform: translateZ(40px); margin-bottom: 15px; }
 
         input {
-            width: 100%; padding: 15px 25px; margin-top: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 100%; padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px; color: white; outline: none;
-            transition: 0.3s;
+            border-radius: 20px;
+            color: #fff; outline: none; transition: 0.3s;
+            text-align: center;
         }
-        input:focus { border-color: #00ffff; background: rgba(0, 255, 255, 0.05); }
+
+        input:focus { border-color: #00f2fe; background: rgba(255, 255, 255, 0.15); }
 
         .btn-login {
-            width: 100%; padding: 18px; margin-top: 30px;
-            background: linear-gradient(45deg, #00ffff, #0066ff);
-            border: none; border-radius: 20px; color: white;
-            font-weight: bold; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+            width: 100%; padding: 18px; margin-top: 15px;
+            background: #fff; color: #000;
+            border: none; border-radius: 20px;
+            font-weight: 700; cursor: pointer;
+            transition: 0.4s;
+            transform: translateZ(80px);
         }
 
-        .social {
-            margin-top: 40px; display: flex; justify-content: center; gap: 20px;
-            transform: translateZ(30px);
+        .btn-login:hover { 
+            background: #00f2fe; 
+            transform: translateZ(100px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
         }
-        .social a { color: white; text-decoration: none; font-size: 11px; opacity: 0.5; transition: 0.3s; }
-        .social a:hover { opacity: 1; color: #00ffff; }
 
+        .social-links {
+            margin-top: 35px;
+            display: flex; justify-content: center; gap: 15px;
+            transform: translateZ(50px);
+        }
+
+        .social-links a {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px; text-decoration: none;
+            padding: 8px 15px; background: rgba(255,255,255,0.05);
+            border-radius: 15px; transition: 0.3s;
+        }
+
+        .social-links a:hover { color: #fff; background: rgba(255,255,255,0.2); }
+
+        .battery-box {
+            position: absolute; top: 25px; left: 40px;
+            font-size: 9px; opacity: 0.5; transform: translateZ(40px);
+        }
     </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
+<canvas id="dustCanvas"></canvas>
 
-<div class="main-container" id="tilt">
-    <div class="glass-wrapper">
+<div class="main-3d-wrapper" id="tiltCard">
+    <div class="neon-border">
         <div class="glass-card">
-            <div class="sys-header">
-                <span id="bat">BATTERY: 80%</span>
-                <span id="clock">00:00:00</span>
+            <div class="battery-box" id="bat-val">BATTERY: --%</div>
+            
+            <h2 class="h-title">PANEL LOGIN</h2>
+            <p class="sub-title">NGUYỄN TIÊU DEV</p>
+            
+            <div class="clock-display" id="real-time">00:00:00</div>
+
+            <div class="input-group">
+                <input type="text" placeholder="Access ID" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="Secure Password">
             </div>
 
-            <h2 class="depth-h">PANEL LOGIN</h2>
-            <p class="depth-p">NGUYỄN TIÊU DEV V.2026</p>
+            <button class="btn-login">EXECUTE LOGIN</button>
 
-            <div class="depth-input">
-                <input type="text" placeholder="ACCESS_KEY">
-                <input type="password" placeholder="PASSWORD">
-            </div>
-
-            <button class="btn-login depth-btn">SYSTEM BYPASS</button>
-
-            <div class="social">
-                <a href="#">FACEBOOK</a>
-                <a href="#">TIKTOK</a>
-                <a href="#">ZALO</a>
+            <div class="social-links">
+                <a href="https://www.facebook.com/share/1CTXMD4ctG/" target="_blank">FACEBOOK</a>
+                <a href="https://tiktok.com/@nguyentieulive" target="_blank">TIKTOK</a>
+                <a href="https://zalo.me/0353564018" target="_blank">ZALO</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- 1. HIỆU ỨNG 3D NGHIÊNG (Tilt) ---
-    const tilt = document.getElementById('tilt');
+    // 1. HIỆU ỨNG TILT 3D
+    const card = document.getElementById('tiltCard');
     document.addEventListener('mousemove', (e) => {
-        let x = (window.innerWidth / 2 - e.pageX) / 15;
-        let y = (window.innerHeight / 2 - e.pageY) / 15;
-        tilt.style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
+        let x = (window.innerWidth / 2 - e.pageX) / 20;
+        let y = (window.innerHeight / 2 - e.pageY) / 20;
+        card.style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
     });
 
-    // --- 2. BỤI SAO BAY XUYÊN TƯỜNG ---
-    const canvas = document.getElementById('stars');
+    // 2. BỤI SÁNG LẤP LÁNH (DUST)
+    const canvas = document.getElementById('dustCanvas');
     const ctx = canvas.getContext('2d');
     let w, h;
     const setSize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
     setSize(); window.onresize = setSize;
 
-    const particles = [];
-    for(let i=0; i<200; i++) {
-        particles.push({
+    const stars = [];
+    for(let i=0; i<100; i++) {
+        stars.push({
             x: Math.random() * w, y: Math.random() * h,
-            vx: (Math.random() - 0.5) * 20,
-            vy: (Math.random() - 0.5) * 20,
+            vx: (Math.random() - 0.5) * 1,
+            vy: (Math.random() - 0.5) * 1,
             size: Math.random() * 2
         });
     }
 
-    function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-        ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = "#fff";
-        particles.forEach(p => {
-            ctx.fillRect(p.x, p.y, p.size, p.size);
-            p.x += p.vx; p.y += p.vy;
-            if(p.x < 0) p.x = w; if(p.x > w) p.x = 0;
-            if(p.y < 0) p.y = h; if(p.y > h) p.y = 0;
+    function animate() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+            ctx.fill();
+            s.x += s.vx; s.y += s.vy;
+            if(s.x < 0) s.x = w; if(s.x > w) s.x = 0;
+            if(s.y < 0) s.y = h; if(s.y > h) s.y = 0;
         });
-        requestAnimationFrame(draw);
+        requestAnimationFrame(animate);
     }
-    draw();
+    animate();
 
-    // --- 3. CẬP NHẬT PIN & GIỜ ---
-    function updateSys() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN');
+    // 3. CẬP NHẬT HỆ THỐNG
+    function updateInfo() {
+        const d = new Date();
+        document.getElementById('real-time').innerText = d.toLocaleTimeString('vi-VN') + " | " + d.toLocaleDateString('vi-VN');
         if(navigator.getBattery) {
             navigator.getBattery().then(b => {
-                document.getElementById('bat').innerText = "BATTERY: " + Math.round(b.level * 100) + "%";
+                document.getElementById('bat-val').innerText = "BATTERY: " + Math.round(b.level * 100) + "%";
             });
         }
     }
-    setInterval(updateSys, 1000);
-    updateSys();
+    setInterval(updateInfo, 1000);
+    updateInfo();
 </script>
 
 </body>
