@@ -2,99 +2,90 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nguyễn Tiêu Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nguyễn Tiêu 3D World</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #02050a; overflow: hidden; font-family: sans-serif; }
-        canvas { display: block; }
-        #ui { position: fixed; top: 10px; left: 10px; color: #00e5ff; font-weight: bold; text-shadow: 0 0 5px #00e5ff; pointer-events: none; }
+        body { margin: 0; background: #000; overflow: hidden; }
+        #info {
+            position: absolute; top: 10px; width: 100%; text-align: center;
+            color: #00e5ff; font-family: sans-serif; pointer-events: none;
+            text-shadow: 0 0 10px #00e5ff;
+        }
     </style>
 </head>
 <body>
-    <div id="ui">ĐIỂM: <span id="score">0</span><br>GAME BY NGUYỄN TIÊU</div>
-    <canvas id="gameCanvas"></canvas>
+    <div id="info">NGUYỄN TIÊU 3D ENGINE<br>Vuốt để xoay không gian</div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('score');
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let score = 0;
-        let player = { x: canvas.width / 2, y: canvas.height - 100, size: 30 };
-        let bullets = [];
-        let enemies = [];
-
-        // Điều khiển (Chuột hoặc Chạm)
-        function move(e) {
-            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            player.x = clientX;
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
         }
-        window.addEventListener('mousemove', move);
-        window.addEventListener('touchmove', move);
+    </script>
 
-        // Tạo kẻ địch
-        function spawnEnemy() {
-            enemies.push({ x: Math.random() * canvas.width, y: -20, speed: 2 + Math.random() * 3 });
+    <script type="module">
+        import * as THREE from 'three';
+
+        // 1. Khởi tạo màn hình (Scene)
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. Tạo vật thể 3D (Viên kim cương Neon)
+        const geometry = new THREE.OctahedronGeometry(1, 0);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x00e5ff, 
+            wireframe: true // Hiện khung lưới cho ngầu
+        });
+        const crystal = new THREE.Mesh(geometry, material);
+        scene.add(crystal);
+
+        // 3. Tạo dải ngân hà (Stars)
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 1000;
+        const posArray = new Float32Array(starCount * 3);
+        for(let i=0; i < starCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
         }
-        setInterval(spawnEnemy, 1000);
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const starMaterial = new THREE.PointsMaterial({ size: 0.005, color: 0xffffff });
+        const starMesh = new THREE.Points(starGeometry, starMaterial);
+        scene.add(starMesh);
 
-        // Tự động bắn
-        setInterval(() => {
-            bullets.push({ x: player.x, y: player.y, speed: 7 });
-        }, 300);
+        camera.position.z = 3;
 
-        function update() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // 4. Xử lý xoay theo cảm ứng/chuột
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
+        });
 
-            // Vẽ phi thuyền Nguyễn Tiêu (Hình tam giác Neon)
-            ctx.fillStyle = "#00e5ff";
-            ctx.beginPath();
-            ctx.moveTo(player.x, player.y - player.size);
-            ctx.lineTo(player.x - player.size, player.y + player.size);
-            ctx.lineTo(player.x + player.size, player.y + player.size);
-            ctx.fill();
+        // 5. Vòng lặp Render (Animation)
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            crystal.rotation.y += 0.01;
+            crystal.rotation.x += 0.005;
 
-            // Xử lý đạn
-            bullets.forEach((b, bi) => {
-                b.y -= b.speed;
-                ctx.fillStyle = "#ff0055";
-                ctx.fillRect(b.x - 2, b.y, 4, 10);
-                if(b.y < 0) bullets.splice(bi, 1);
-            });
+            // Camera di chuyển nhẹ theo chuột
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
 
-            // Xử lý kẻ địch
-            enemies.forEach((en, ei) => {
-                en.y += en.speed;
-                ctx.fillStyle = "#ffcc00";
-                ctx.beginPath();
-                ctx.arc(en.x, en.y, 15, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Kiểm tra va chạm đạn
-                bullets.forEach((b, bi) => {
-                    let dist = Math.hypot(b.x - en.x, b.y - en.y);
-                    if(dist < 20) {
-                        enemies.splice(ei, 1);
-                        bullets.splice(bi, 1);
-                        score += 10;
-                        scoreEl.innerText = score;
-                    }
-                });
-
-                if(en.y > canvas.height) {
-                    enemies.splice(ei, 1);
-                    // Có thể thêm trừ điểm ở đây
-                }
-            });
-
-            requestAnimationFrame(update);
+            renderer.render(scene, camera);
         }
 
-        update();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
     </script>
 </body>
 </html>
