@@ -3,95 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Tiêu AI - Bản Chuẩn</title>
+    <title>Fake Lag By Nguyễn Tiêu</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { min-height: 100vh; background: #02050a; color: white; overflow: hidden; position: relative; }
-        #bg-wrap { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: fly 15s linear infinite; }
-        @keyframes fly { from { transform: translateY(100vh); opacity: 0; } 50% { opacity: 1; } to { transform: translateY(-10vh); opacity: 0; } }
+        body { background: #02050a; color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        
+        h1 { color: #00e5ff; text-shadow: 0 0 15px #00e5ff; margin-bottom: 30px; letter-spacing: 2px; }
 
-        /* Login RGB */
-        #login-screen { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; align-items: center; background: #02050a; transition: 0.8s; }
-        .login-card { position: relative; width: 340px; height: 450px; background: rgba(255, 255, 255, 0.05); border-radius: 25px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .login-card::before { content: ''; position: absolute; width: 150%; height: 150%; background: conic-gradient(transparent, transparent, transparent, #00e5ff, #ff0055, #ffcc00, #00e5ff); animation: rotate-border 4s linear infinite; }
-        @keyframes rotate-border { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .login-inner { position: absolute; inset: 4px; background: #060c18; border-radius: 22px; z-index: 10; padding: 40px 30px; display: flex; flex-direction: column; text-align: center; }
-        .login-inner h2 { color: #00e5ff; margin-bottom: 30px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
-        .login-inner input { width: 100%; padding: 12px; margin: 10px 0; background: #101a2d; border: 1px solid #1a2a44; color: white; border-radius: 10px; outline: none; }
-        .login-inner button { width: 100%; padding: 12px; background: linear-gradient(90deg, #00e5ff, #ff0055); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; color: white; }
+        .config-box { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 20px; border: 1px solid #1a2a44; text-align: center; width: 320px; z-index: 10; }
+        .config-box input { width: 100%; padding: 10px; margin: 10px 0; background: #101a2d; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
+        .config-box label { font-size: 12px; color: #888; display: block; text-align: left; }
+        
+        button#activate-btn { width: 100%; padding: 12px; background: linear-gradient(90deg, #00e5ff, #ff0055); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* Chat UI */
-        #ai-screen { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column; background: radial-gradient(circle at center, #0a192f 0%, #02050a 100%); opacity: 0; transition: 1s; }
-        header { padding: 15px 20px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); display: flex; justify-content: space-between; align-items: center; }
-        header h1 { color: #00e5ff; font-size: 18px; letter-spacing: 2px; }
-        #chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 14px; line-height: 1.6; }
-        .ai-msg { background: rgba(0, 229, 255, 0.1); color: #e0faff; align-self: flex-start; border-left: 4px solid #00e5ff; }
-        .user-msg { background: rgba(255, 0, 85, 0.1); color: #ffe0eb; align-self: flex-end; border-right: 4px solid #ff0055; }
-        .chat-input-area { padding: 15px; background: #060c18; display: flex; gap: 10px; border-top: 1px solid #1a2a44; }
-        #user-input { flex: 1; background: #101a2d; border: 1px solid #333; padding: 12px; border-radius: 30px; color: white; outline: none; }
-        #send-btn { background: #00e5ff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
+        /* Nút nổi (Floating Button) */
+        #floating-btn {
+            position: fixed; top: 50px; right: 20px;
+            background: radial-gradient(circle, #ff0055, #80002b);
+            color: white; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: move; z-index: 9999; font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+            user-select: none; border: 2px solid white;
+        }
+
+        #countdown-text { pointer-events: none; }
+
+        .footer { position: fixed; bottom: 20px; font-size: 10px; color: #444; }
     </style>
 </head>
 <body>
-    <div id="bg-wrap"></div>
-    <div id="login-screen">
-        <div class="login-card">
-            <div class="login-inner">
-                <h2>NGUYỄN TIÊU AI</h2>
-                <input type="text" id="u" placeholder="Tài khoản (admin)">
-                <input type="password" id="p" placeholder="Mật khẩu (123)">
-                <button onclick="handleLogin()">ĐĂNG NHẬP</button>
-            </div>
-        </div>
+
+    <h1>FAKE LAG BY NGUYỄN TIÊU</h1>
+
+    <div class="config-box">
+        <label>Số giây đếm ngược:</label>
+        <input type="number" id="sec-input" value="10" placeholder="Ví dụ: 30">
+        
+        <label>Kích thước nút nổi (px):</label>
+        <input type="number" id="size-input" value="60" placeholder="Ví dụ: 80">
+        
+        <button id="activate-btn" onclick="showFloatingBtn()">KÍCH HOẠT NÚT NỔI</button>
     </div>
-    <div id="ai-screen">
-        <header><div></div><h1>NGUYỄN TIÊU AI</h1><button style="color:#ff0055; background:none; border:1px solid #ff0055; border-radius:10px; padding:5px;" onclick="location.reload()">THOÁT</button></header>
-        <div id="chat-container"></div>
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Hỏi gì đi sếp...">
-            <button onclick="sendMessage()">➤</button>
-        </div>
+
+    <div id="floating-btn">
+        <span id="countdown-text">START</span>
     </div>
+
+    <div class="footer">DEVELOPED BY NGUYỄN TIÊU</div>
+
     <script>
-        const API_KEY = "AIzaSyBZYI0kAVenAzKa3sbNSXKCHCOKcKI02os"; 
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        const floatBtn = document.getElementById('floating-btn');
+        const countdownText = document.getElementById('countdown-text');
+        let isCounting = false;
 
-        function handleLogin() {
-            if(document.getElementById('u').value === "admin" && document.getElementById('p').value === "123") {
-                document.getElementById('login-screen').style.display = "none";
-                document.getElementById('ai-screen').style.display = "flex";
-                setTimeout(() => { document.getElementById('ai-screen').style.opacity = "1"; }, 50);
-                addMessage("Chào sếp! Tôi đã sẵn sàng.", "ai-msg");
-            } else { alert("Sai rồi sếp!"); }
+        function showFloatingBtn() {
+            const size = document.getElementById('size-input').value || 60;
+            floatBtn.style.width = size + 'px';
+            floatBtn.style.height = size + 'px';
+            floatBtn.style.fontSize = (size / 3) + 'px';
+            floatBtn.style.display = 'flex';
+            countdownText.innerText = "START";
+            alert("Đã hiện nút nổi! Sếp có thể kéo nó đi khắp màn hình.");
         }
 
-        function addMessage(t, c) {
-            const div = document.createElement('div');
-            div.className = `msg ${c}`;
-            div.innerText = t;
-            document.getElementById('chat-container').appendChild(div);
-            document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
-        }
+        // Xử lý đếm ngược khi ấn vào nút
+        floatBtn.onclick = function() {
+            if (isCounting) return;
+            
+            let seconds = parseInt(document.getElementById('sec-input').value) || 10;
+            isCounting = true;
+            floatBtn.style.background = "#333"; // Đổi màu khi đang chạy
 
-        async function sendMessage() {
-            const i = document.getElementById('user-input');
-            const p = i.value.trim();
-            if(!p) return;
-            addMessage(p, 'user-msg');
-            i.value = "";
-            try {
-                const r = await fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: p }] }] })
-                });
-                const d = await r.json();
-                if(d.candidates) addMessage(d.candidates[0].content.parts[0].text, 'ai-msg');
-                else addMessage("Lỗi: " + d.error.message, 'ai-msg');
-            } catch (e) { addMessage("Lỗi mạng rồi sếp!", 'ai-msg'); }
-        }
+            const timer = setInterval(() => {
+                seconds--;
+                countdownText.innerText = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    countdownText.innerText = "DONE";
+                    floatBtn.style.background = "radial-gradient(circle, #00e5ff, #00808f)";
+                    isCounting = false;
+                    setTimeout(() => { countdownText.innerText = "START"; floatBtn.style.background = "radial-gradient(circle, #ff0055, #80002b)"; }, 2000);
+                }
+            }, 1000);
+        };
+
+        // Code xử lý Kéo thả (Drag) nút nổi
+        let isDragging = false;
+        let offset = [0, 0];
+
+        floatBtn.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offset = [floatBtn.offsetLeft - e.clientX, floatBtn.offsetTop - e.clientY];
+        });
+
+        document.addEventListener('mouseup', () => { isDragging = false; });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                floatBtn.style.left = (e.clientX + offset[0]) + 'px';
+                floatBtn.style.top = (e.clientY + offset[1]) + 'px';
+                floatBtn.style.right = 'auto'; // Hủy vị trí mặc định
+            }
+        });
+
+        // Hỗ trợ kéo thả trên điện thoại
+        floatBtn.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            let touch = e.touches[0];
+            offset = [floatBtn.offsetLeft - touch.clientX, floatBtn.offsetTop - touch.clientY];
+        });
+
+        floatBtn.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                let touch = e.touches[0];
+                floatBtn.style.left = (touch.clientX + offset[0]) + 'px';
+                floatBtn.style.top = (touch.clientY + offset[1]) + 'px';
+                floatBtn.style.right = 'auto';
+            }
+        });
     </script>
 </body>
 </html>
