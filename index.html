@@ -3,183 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HACKER LOGIN TERMINAL</title>
+    <title>HACKER TERMINAL - NON STOP</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hack', monospace; } /* Font Hack giống console */
-        @import url('https://fonts.googleapis.com/css2?family=Hack&display=swap'); /* Import font Hack */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* Hiệu ứng Matrix Rain chuẩn xác */
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
 
-        body {
-            display: flex; justify-content: center; align-items: center; min-height: 100vh;
-            background: #000; /* Nền đen tuyền */
-            overflow: hidden;
-            color: #0f0; /* Chữ xanh lá neon */
-        }
-
-        /* Hiệu ứng Matrix Rain (mưa ký tự) */
-        .matrix-bg {
-            position: absolute; width: 100%; height: 100%;
-            pointer-events: none; /* Không ảnh hưởng đến click */
-            overflow: hidden;
-        }
-        .matrix-column {
-            position: absolute; width: 20px; text-align: center;
-            white-space: pre; /* Giữ khoảng trắng và xuống dòng */
-            opacity: 0.5;
-            font-size: 1.2em;
+        .login-box {
+            position: relative; z-index: 10;
+            width: 400px; padding: 30px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            text-align: center;
         }
 
-        .login-terminal {
-            width: 450px; padding: 30px; border-radius: 8px;
-            background: rgba(10, 10, 10, 0.9); /* Nền tối hơn */
-            border: 2px solid #0f0; /* Viền xanh neon */
-            box-shadow: 0 0 15px #0f0, 0 0 30px rgba(0, 255, 0, 0.3);
-            text-align: left;
-            position: relative;
-            z-index: 10; /* Đảm bảo nổi trên Matrix Rain */
-        }
+        h2 { color: #0f0; margin-bottom: 25px; letter-spacing: 5px; text-shadow: 0 0 10px #0f0; }
 
-        h2 {
-            text-align: center; margin-bottom: 25px;
-            color: #0f0; text-shadow: 0 0 8px #0f0;
-            text-transform: uppercase; letter-spacing: 3px;
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .input-group label { color: #0f0; font-size: 12px; display: block; margin-bottom: 5px; }
+        .input-group input {
+            width: 100%; padding: 10px; background: transparent;
+            border: 1px solid #060; color: #0f0; outline: none;
+            font-size: 16px;
         }
+        .input-group input:focus { border-color: #0f0; box-shadow: 0 0 10px #060; }
 
-        .terminal-line {
-            display: flex; align-items: center; margin-bottom: 15px;
+        button {
+            width: 100%; padding: 12px; background: #0f0; border: none;
+            color: #000; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
         }
+        button:hover { background: #000; color: #0f0; border: 1px solid #0f0; box-shadow: 0 0 15px #0f0; }
 
-        .terminal-prompt {
-            color: #0f0; font-weight: bold; margin-right: 10px;
+        #status-log { 
+            margin-top: 20px; color: #0f0; font-size: 12px; 
+            text-align: left; height: 60px; overflow: hidden;
+            border-top: 1px dashed #060; padding-top: 10px;
         }
-
-        .terminal-input {
-            flex-grow: 1; padding: 8px; background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #0a0; color: #0f0; font-size: 1em;
-            outline: none; caret-color: #0f0; /* Màu con trỏ nhấp nháy */
-        }
-
-        .terminal-input:focus {
-            border-color: #0f0; box-shadow: 0 0 5px #0f0;
-        }
-
-        .terminal-button {
-            width: 100%; padding: 10px; background: #0f0;
-            border: none; color: #000; font-weight: bold;
-            cursor: pointer; transition: 0.3s ease;
-            margin-top: 20px; text-transform: uppercase;
-        }
-
-        .terminal-button:hover {
-            background: #0a0; box-shadow: 0 0 10px #0f0;
-        }
-
-        #terminal-message {
-            margin-top: 20px; min-height: 20px;
-            color: #0f0; font-size: 0.9em;
-        }
-        .error { color: #f00; text-shadow: 0 0 5px #f00; }
-        .success { color: #0f0; text-shadow: 0 0 5px #0f0; }
+        .error { color: #f00 !important; }
+        .success { color: #0f0 !important; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="matrix-bg" id="matrix-bg"></div>
 
-    <div class="login-terminal">
-        <h2>_SYSTEM_ACCESS_</h2>
-        <div class="terminal-line">
-            <span class="terminal-prompt">> USERNAME:</span>
-            <input type="text" id="username" class="terminal-input" value="admin">
+    <canvas id="matrix"></canvas>
+
+    <div class="login-box">
+        <h2>TERMINAL</h2>
+        <div class="input-group">
+            <label>> IDENTITY:</label>
+            <input type="text" id="user" placeholder="..." autocomplete="off">
         </div>
-        <div class="terminal-line">
-            <span class="terminal-prompt">> PASSWORD:</span>
-            <input type="password" id="password" class="terminal-input" value="123456">
+        <div class="input-group">
+            <label>> ACCESS_CODE:</label>
+            <input type="password" id="pass" placeholder="...">
         </div>
-        <button class="terminal-button" onclick="checkLogin()">_INITIATE_LOGIN_</button>
-        <div id="terminal-message"></div>
+        <button onclick="handleLogin()">Execute_Login</button>
+        <div id="status-log"></div>
     </div>
 
     <script>
-        const matrixBg = document.getElementById('matrix-bg');
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:",./<>?`~';
-        let columns = [];
-        let runningMatrix = true;
+        // --- HIỆU ỨNG MATRIX RAIN (KHÔNG DỪNG) ---
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
 
-        // Tạo các cột Matrix Rain
-        function createMatrixRain() {
-            matrixBg.innerHTML = ''; // Xóa cột cũ nếu có
-            const numColumns = Math.floor(window.innerWidth / 20); // 20px mỗi cột
-            columns = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-            for (let i = 0; i < numColumns; i++) {
-                const column = document.createElement('div');
-                column.className = 'matrix-column';
-                column.style.left = `${i * 20}px`;
-                column.style.top = `-${Math.random() * window.innerHeight}px`; // Bắt đầu ngẫu nhiên từ trên
-                columns.push({ element: column, speed: 5 + Math.random() * 10, currentText: '', length: 10 + Math.random() * 20 });
-                matrixBg.appendChild(column);
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.width && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
             }
         }
+        setInterval(drawMatrix, 33);
 
-        // Cập nhật hiệu ứng Matrix Rain
-        function updateMatrixRain() {
-            if (!runningMatrix) return;
+        // --- LOGIC ĐĂNG NHẬP ---
+        const log = document.getElementById('status-log');
+        
+        function addLog(text, className = "") {
+            const p = document.createElement('p');
+            p.className = className;
+            p.innerText = "> " + text;
+            log.prepend(p);
+        }
 
-            columns.forEach(col => {
-                if (Math.random() > 0.98) { // Tần suất thêm ký tự mới
-                    col.currentText = chars[Math.floor(Math.random() * chars.length)] + col.currentText;
-                    if (col.currentText.length > col.length) {
-                        col.currentText = col.currentText.substring(0, col.length);
-                    }
-                }
-                col.element.innerText = col.currentText;
+        function handleLogin() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+
+            addLog("Initiating brute-force bypass...");
+            
+            setTimeout(() => {
+                addLog("Checking credentials in database...");
                 
-                // Di chuyển cột xuống
-                let currentTop = parseFloat(col.element.style.top);
-                currentTop += col.speed;
-                col.element.style.top = `${currentTop}px`;
-
-                // Reset nếu ra khỏi màn hình
-                if (currentTop > window.innerHeight) {
-                    col.element.style.top = `-${Math.random() * window.innerHeight}px`;
-                    col.currentText = '';
-                    col.length = 10 + Math.random() * 20;
-                }
-            });
-
-            requestAnimationFrame(updateMatrixRain);
-        }
-
-        // Bắt đầu Matrix Rain khi load trang
-        window.onload = () => {
-            createMatrixRain();
-            updateMatrixRain();
-        };
-
-        // Điều chỉnh Matrix Rain khi thay đổi kích thước cửa sổ
-        window.onresize = createMatrixRain;
-
-
-        // Logic đăng nhập
-        function checkLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            const msg = document.getElementById('terminal-message');
-
-            if (user === "admin" && pass === "123456") {
-                msg.innerHTML = "<span class='success'>[ACCESS GRANTED]</span><br>_Welcome back, Admin_";
-                msg.className = "success";
-                runningMatrix = false; // Dừng hiệu ứng Matrix Rain
                 setTimeout(() => {
-                    alert(">>> Access to Mainframe granted. Initiating secure session...");
-                    // Chuyển hướng hoặc load dashboard hacker tại đây
-                }, 1500);
-            } else {
-                msg.innerHTML = "<span class='error'>[ACCESS DENIED]</span><br>_Incorrect credentials. Retrying..._";
-                msg.className = "error";
-                // Xóa input để người dùng nhập lại
-                document.getElementById('password').value = '';
-            }
+                    if (u === "admin" && p === "123456") {
+                        addLog("ACCESS GRANTED. Welcome Admin.", "success");
+                        alert("Hệ thống đã mở! Chào mừng Hacker.");
+                    } else {
+                        addLog("CRITICAL ERROR: ACCESS DENIED.", "error");
+                    }
+                }, 800);
+            }, 500);
         }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
 </body>
 </html>
