@@ -2,19 +2,26 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Tiêu Survival 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nguyễn Tiêu Mobile Survival</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
-        #crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-        #ui { position: fixed; bottom: 20px; left: 20px; color: #00e5ff; text-shadow: 0 0 5px #000; }
-        #joy { position: fixed; bottom: 40px; right: 40px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
+        body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: sans-serif; }
+        /* Tâm bắn */
+        #crosshair { position: fixed; top: 50%; left: 50%; width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        /* Joystick di chuyển bên trái */
+        #joystick-base { position: fixed; bottom: 50px; left: 50px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 1px solid rgba(0,229,255,0.3); }
+        #joystick-stick { position: absolute; top: 25px; left: 25px; width: 50px; height: 50px; background: #00e5ff; border-radius: 50%; opacity: 0.5; }
+        /* Nút bắn bên phải */
+        #fire-btn { position: fixed; bottom: 60px; right: 50px; width: 80px; height: 80px; background: rgba(255,0,85,0.3); border: 2px solid #ff0055; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        #ui { position: fixed; top: 20px; left: 20px; color: #00e5ff; font-size: 12px; }
     </style>
 </head>
 <body>
     <div id="crosshair"></div>
-    <div id="ui">HP: 100 | AMMO: 30<br>FREE FIRE CLONE BY NGUYỄN TIÊU</div>
-    <div id="joy">XOAY CHUỘT/VUỐT ĐỂ NHÌN</div>
+    <div id="ui">NGUYỄN TIÊU MOBILE 3D<br>HP: 100 | GIÁP: 100</div>
+    
+    <div id="joystick-base"><div id="joystick-stick"></div></div>
+    <div id="fire-btn">BẮN</div>
 
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
@@ -23,78 +30,80 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // 1. Setup Scene & Camera
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb); // Bầu trời
+        scene.background = new THREE.Color(0x111122);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
-        // 2. Mặt đất (Đảo quân sự mini)
-        const floorGeo = new THREE.PlaneGeometry(100, 100);
-        const floorMat = new THREE.MeshPhongMaterial({ color: 0x228b22 }); // Màu cỏ
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        scene.add(floor);
-
-        // 3. Nhân vật của sếp (Tạm thời là một khối hộp)
-        const playerGeo = new THREE.BoxGeometry(1, 2, 1);
-        const playerMat = new THREE.MeshPhongMaterial({ color: 0xff0055 });
-        const player = new THREE.Mesh(playerGeo, playerMat);
-        player.position.y = 1;
-        scene.add(player);
-
-        // 4. Ánh sáng
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 10, 7.5);
-        scene.add(light);
+        // Mặt đất & Ánh sáng
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshPhongMaterial({ color: 0x1a1a1a }));
+        floor.rotation.x = -Math.PI/2; scene.add(floor);
+        const light = new THREE.DirectionalLight(0xffffff, 1); light.position.set(5, 10, 5); scene.add(light);
         scene.add(new THREE.AmbientLight(0x404040));
 
-        // 5. Điều khiển
-        let keys = {};
-        window.addEventListener('keydown', (e) => keys[e.code] = true);
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
+        // Nhân vật (Khối hộp neon cho ngầu)
+        const player = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshPhongMaterial({ color: 0x00e5ff }));
+        player.position.y = 1; scene.add(player);
 
-        let yaw = 0; // Xoay trái phải
-        document.addEventListener('mousemove', (e) => {
-            yaw -= e.movementX * 0.002;
+        // Biến điều khiển
+        let moveX = 0, moveZ = 0;
+        let yaw = 0; // Xoay camera
+
+        // Xử lý Vuốt màn hình để xoay (Bên phải màn hình)
+        let touchStartX = 0;
+        window.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+        window.addEventListener('touchmove', (e) => {
+            let touch = e.touches[0];
+            if (touch.clientX > window.innerWidth / 2) { // Vuốt nửa phải để xoay
+                yaw -= (touch.clientX - touchStartX) * 0.005;
+                touchStartX = touch.clientX;
+            }
         });
 
-        // 6. Vòng lặp Game
+        // Xử lý Joystick (Bên trái màn hình)
+        const stick = document.getElementById('joystick-stick');
+        window.addEventListener('touchmove', (e) => {
+            let touch = e.touches[0];
+            if (touch.clientX < window.innerWidth / 2) { // Nửa trái
+                let rect = document.getElementById('joystick-base').getBoundingClientRect();
+                let centerX = rect.left + 50;
+                let centerY = rect.top + 50;
+                let dx = touch.clientX - centerX;
+                let dy = touch.clientY - centerY;
+                let dist = Math.min(Math.hypot(dx, dy), 50);
+                let angle = Math.atan2(dy, dx);
+                
+                stick.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+                
+                moveX = Math.cos(angle) * (dist / 50);
+                moveZ = Math.sin(angle) * (dist / 50);
+            }
+        });
+        window.addEventListener('touchend', () => {
+            stick.style.transform = `translate(0,0)`;
+            moveX = 0; moveZ = 0;
+        });
+
         function animate() {
             requestAnimationFrame(animate);
 
-            // Di chuyển
-            const speed = 0.1;
-            if(keys['KeyW']) {
-                player.position.x += Math.sin(yaw) * speed;
-                player.position.z += Math.cos(yaw) * speed;
-            }
-            if(keys['KeyS']) {
-                player.position.x -= Math.sin(yaw) * speed;
-                player.position.z -= Math.cos(yaw) * speed;
-            }
+            // Di chuyển dựa trên hướng camera
+            player.position.x += (Math.cos(yaw) * moveX + Math.sin(yaw) * moveZ) * 0.1;
+            player.position.z += (Math.sin(yaw) * -moveX + Math.cos(yaw) * moveZ) * 0.1;
+            player.rotation.y = -yaw + Math.PI/2;
 
-            player.rotation.y = yaw;
-
-            // Camera đi theo nhân vật (Góc nhìn thứ 3)
-            camera.position.x = player.position.x - Math.sin(yaw) * 5;
-            camera.position.z = player.position.z - Math.cos(yaw) * 5;
-            camera.position.y = player.position.y + 3;
-            camera.lookAt(player.position);
+            // Camera góc nhìn thứ 3 (Tối ưu cho mobile)
+            camera.position.x = player.position.x - Math.cos(yaw) * 6;
+            camera.position.z = player.position.z - Math.sin(yaw) * 6;
+            camera.position.y = 4;
+            camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
 
             renderer.render(scene, camera);
         }
-
         animate();
-
-        // Responsive
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
     </script>
 </body>
 </html>
