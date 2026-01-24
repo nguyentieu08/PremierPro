@@ -3,32 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINARY_BORDER_RUNNER</title>
+    <title>BINARY_GLITCH_OVERRIDE</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
         body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        /* Nền nhị phân bay xuyên tường */
         canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
 
-        /* Container bao ngoài để làm hiệu ứng viền chạy */
+        /* Container viền hiệu ứng động */
         .border-animation {
             position: relative;
             z-index: 10;
-            padding: 3px; /* Độ dày của viền */
-            border-radius: 35px; /* Bo tròn lớn */
+            padding: 4px; 
+            border-radius: 40px; 
             background: rgba(0, 255, 0, 0.1);
             overflow: hidden;
             display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
         }
 
-        /* Hiệu ứng tia sáng xoay quanh viền */
         .border-animation::before {
             content: '';
             position: absolute;
-            width: 150%; height: 150%;
-            background: conic-gradient(transparent, transparent, transparent, #0f0);
-            animation: rotate-border 3s linear infinite;
+            width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, #0f0, transparent);
+            animation: rotate-border 2s linear infinite;
         }
 
         @keyframes rotate-border {
@@ -36,109 +35,120 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Hộp đăng nhập nằm trên viền */
+        /* Hộp đăng nhập */
         .login-box {
             position: relative;
-            width: 380px; padding: 40px;
-            background: #000; /* Nền đen sâu để nổi bật viền */
-            border-radius: 32px; /* Bo tròn nhỏ hơn container một chút */
+            width: 380px; padding: 45px;
+            background: #000;
+            border-radius: 37px;
             color: #0f0;
             z-index: 2;
+            text-align: center;
         }
 
-        h2 { font-size: 1.6rem; margin-bottom: 30px; text-align: center; letter-spacing: 4px; text-shadow: 0 0 10px #0f0; }
+        h2 { font-size: 1.6rem; margin-bottom: 30px; letter-spacing: 6px; text-shadow: 0 0 10px #0f0; }
 
-        .input-group { margin-bottom: 20px; }
-        .input-group label { font-size: 11px; display: block; margin-bottom: 8px; opacity: 0.6; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { font-size: 10px; display: block; margin-bottom: 8px; opacity: 0.7; letter-spacing: 1px; }
         
         input {
-            width: 100%; padding: 15px; background: rgba(0, 255, 0, 0.05); 
-            border: 1px solid #060; border-radius: 15px; /* Bo tròn input */
+            width: 100%; padding: 15px; background: rgba(0, 255, 0, 0.03); 
+            border: 1px solid #040; border-radius: 20px;
             color: #0f0; outline: none; font-size: 16px; transition: 0.3s;
         }
-        input:focus { border-color: #0f0; box-shadow: 0 0 15px rgba(0, 255, 0, 0.3); }
+        input:focus { border-color: #0f0; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
 
         button {
-            width: 100%; padding: 15px; background: #0f0; color: #000;
-            border: none; border-radius: 15px; font-weight: bold; 
+            width: 100%; padding: 16px; background: #0f0; color: #000;
+            border: none; border-radius: 20px; font-weight: bold; 
             cursor: pointer; transition: 0.3s; text-transform: uppercase;
-            margin-top: 10px;
+            letter-spacing: 3px; margin-top: 15px;
         }
-        button:hover { background: #000; color: #0f0; box-shadow: 0 0 20px #0f0; }
+        button:hover { background: #000; color: #0f0; box-shadow: 0 0 30px #0f0; transform: scale(1.03); }
 
-        #status { margin-top: 20px; font-size: 11px; height: 50px; overflow: hidden; border-top: 1px solid #030; padding-top: 10px; }
+        #status { margin-top: 25px; font-size: 10px; height: 50px; border-top: 1px dashed #030; padding-top: 15px; color: #080; }
     </style>
 </head>
 <body>
 
-    <canvas id="bgCanvas"></canvas>
+    <canvas id="glitchCanvas"></canvas>
 
     <div class="border-animation">
         <div class="login-box">
-            <h2>SYS_OVERRIDE</h2>
+            <h2>CORE_LOGIN</h2>
             <div class="input-group">
-                <label>> ID_KEY</label>
-                <input type="text" id="u" placeholder="Admin_ID" autocomplete="off">
+                <label>> SECURE_ID</label>
+                <input type="text" id="u" placeholder="admin" autocomplete="off">
             </div>
             <div class="input-group">
-                <label>> SECRET_HASH</label>
+                <label>> ENCRYPTED_KEY</label>
                 <input type="password" id="p" placeholder="••••••••">
             </div>
-            <button onclick="auth()">DECRYPT_AND_ENTER</button>
+            <button onclick="auth()">EXECUTE_BYPASS</button>
             <div id="status"></div>
         </div>
     </div>
 
     <script>
-        // --- CANVAS NHỊ PHÂN XUYÊN TƯỜNG ---
-        const canvas = document.getElementById('bgCanvas');
+        const canvas = document.getElementById('glitchCanvas');
         const ctx = canvas.getContext('2d');
         let w, h;
         const setSize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
         setSize(); window.onresize = setSize;
 
         const particles = [];
-        for(let i=0; i<350; i++) {
+        const particleCount = 400; // Số lượng hạt
+
+        for(let i=0; i<particleCount; i++) {
             particles.push({
                 x: Math.random() * w,
                 y: Math.random() * h,
-                vx: (Math.random() - 0.5) * 25, // Tốc độ siêu nhanh
-                vy: (Math.random() - 0.5) * 25,
+                vx: (Math.random() - 0.5) * 30, // Tốc độ cực cao
+                vy: (Math.random() - 0.5) * 30,
                 txt: Math.random() > 0.5 ? "1" : "0",
-                size: Math.random() * 14 + 6
+                size: Math.random() * 15 + 8,
+                changeRate: Math.random() * 0.2 + 0.05 // Tỉ lệ đổi số riêng cho mỗi hạt
             });
         }
 
         function animate() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+            // Tạo vệt mờ motion blur
+            ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
             ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = "#0f0";
             
             particles.forEach(p => {
+                // ĐỔI KÝ TỰ NGẪU NHIÊN LIÊN TỤC TRONG KHI BAY
+                if(Math.random() < 0.15) { // 15% khả năng đổi số ở mỗi khung hình
+                    p.txt = p.txt === "1" ? "0" : "1";
+                }
+
+                ctx.fillStyle = "#0f0";
                 ctx.font = `bold ${p.size}px monospace`;
                 ctx.fillText(p.txt, p.x, p.y);
-                p.x += p.vx; p.y += p.vy;
 
-                // Logic xuyên tường
-                if(p.x < 0) p.x = w; if(p.x > w) p.x = 0;
-                if(p.y < 0) p.y = h; if(p.y > h) p.y = 0;
+                // Di chuyển
+                p.x += p.vx; 
+                p.y += p.vy;
 
-                if(Math.random() > 0.98) p.txt = p.txt === "1" ? "0" : "1";
+                // Xuyên tường vô tận
+                if(p.x < -20) p.x = w + 20;
+                if(p.x > w + 20) p.x = -20;
+                if(p.y < -20) p.y = h + 20;
+                if(p.y > h + 20) p.y = -20;
             });
             requestAnimationFrame(animate);
         }
         animate();
 
-        // --- LOGIC AUTH ---
         function auth() {
             const s = document.getElementById('status');
-            s.innerHTML = "> Accessing encrypted layers...<br>";
+            s.innerHTML = "> Scanning packets...<br>";
             setTimeout(() => {
                 if(document.getElementById('u').value === "admin" && document.getElementById('p').value === "123456") {
-                    s.innerHTML += "> <span style='color:white'>ACCESS_GRANTED</span>";
-                    alert("Sếp đã xâm nhập thành công!");
+                    s.innerHTML += "> <span style='color:#fff'>AUTHENTICATION_SUCCESSFUL</span>";
+                    alert("Welcome to the Mainframe, Sếp!");
                 } else {
-                    s.innerHTML += "> <span style='color:red'>HASH_MISMATCH_ERROR</span>";
+                    s.innerHTML += "> <span style='color:#f00'>ACCESS_DENIED_INV_HASH</span>";
                 }
             }, 600);
         }
