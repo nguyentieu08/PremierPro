@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nguyễn Tiêu Survival - Cổng Trời Fix</title>
+    <title>Nguyễn Tiêu Survival - Fix Pro</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: 'Segoe UI', sans-serif; }
-        #ui-layer { position: fixed; top: 15px; left: 15px; width: 220px; z-index: 10; pointer-events: none; }
-        .name-tag { color: #00e5ff; font-weight: bold; font-size: 14px; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
-        .hp-bar-bg { width: 100%; height: 12px; background: rgba(0,0,0,0.6); border: 1px solid #555; border-radius: 6px; overflow: hidden; }
-        #hp-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff5588); }
+        body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: sans-serif; }
+        #ui-layer { position: fixed; top: 15px; left: 15px; z-index: 10; pointer-events: none; }
+        .hp-bar { width: 180px; height: 10px; background: rgba(0,0,0,0.5); border: 1px solid #fff; border-radius: 5px; }
+        #hp-fill { width: 100%; height: 100%; background: #ff0055; transition: 0.2s; }
 
-        #joy-base { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(0,229,255,0.3); }
-        #joy-stick { position: absolute; top: 35px; left: 35px; width: 50px; height: 50px; background: #00e5ff; border-radius: 50%; opacity: 0.6; pointer-events: none; }
-        #fire-btn { position: fixed; bottom: 50px; right: 40px; width: 90px; height: 90px; background: rgba(255,0,85,0.4); border: 4px solid #ff0055; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; z-index: 20; }
-        #crosshair { position: fixed; top: 50%; left: 50%; width: 24px; height: 24px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0.7; }
-        #crosshair::after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: red; transform: translate(-50%, -50%); border-radius: 50%; }
+        /* Điều khiển */
+        #joy-base { position: fixed; bottom: 40px; left: 40px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(0,229,255,0.5); }
+        #joy-stick { position: absolute; top: 25px; left: 25px; width: 50px; height: 50px; background: #00e5ff; border-radius: 50%; opacity: 0.5; pointer-events: none; }
+        #fire-btn { position: fixed; bottom: 60px; right: 50px; width: 90px; height: 90px; background: rgba(255,0,85,0.4); border: 4px solid #ff0055; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; z-index: 20; -webkit-user-select: none; }
+        
+        /* Tâm ngắm chuẩn */
+        #crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid #00ff00; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
+        #crosshair::before { content: ''; position: absolute; top: 50%; left: 50%; width: 2px; height: 2px; background: #00ff00; transform: translate(-50%, -50%); }
     </style>
 </head>
 <body>
     <div id="ui-layer">
-        <div class="name-tag">NGUYỄN TIÊU SURVIVAL</div>
-        <div class="hp-bar-bg"><div id="hp-fill"></div></div>
+        <div style="color: #00e5ff; font-weight: bold; margin-bottom: 5px;">NGUYỄN TIÊU SURVIVAL</div>
+        <div class="hp-bar"><div id="hp-fill"></div></div>
     </div>
     <div id="crosshair"></div>
     <div id="joy-base"><div id="joy-stick"></div></div>
@@ -34,60 +36,51 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- KHỞI TẠO SCENE ---
+        // --- SETUP SCENE ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb); // Màu trời
-        scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
+        scene.background = new THREE.Color(0x87ceeb);
+        scene.fog = new THREE.Fog(0x87ceeb, 10, 50);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.body.appendChild(renderer.domElement);
 
-        // --- ÁNH SÁNG ---
-        const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-        sun.position.set(10, 20, 10);
-        scene.add(sun);
-        scene.add(new THREE.AmbientLight(0x404040, 1.2));
+        // Ánh sáng & Đảo nổi
+        const sun = new THREE.DirectionalLight(0xffffff, 1.5); sun.position.set(10, 20, 10); scene.add(sun);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const island = new THREE.Mesh(new THREE.CylinderGeometry(40, 45, 10, 32), new THREE.MeshPhongMaterial({ color: 0x333333 }));
+        island.position.y = -5; scene.add(island);
 
-        // --- ĐẢO NỔI (CỔNG TRỜI) ---
-        const islandGeo = new THREE.CylinderGeometry(30, 35, 8, 32);
-        const islandMat = new THREE.MeshPhongMaterial({ color: 0x555555 });
-        const island = new THREE.Mesh(islandGeo, islandMat);
-        island.position.y = -4;
-        scene.add(island);
-
-        // --- NHÂN VẬT ---
+        // Nhân vật (Dùng Group để điều khiển xoay chuẩn)
         const player = new THREE.Group();
         const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshPhongMaterial({ color: 0x00e5ff }));
-        player.add(body);
-        player.position.y = 1;
-        scene.add(player);
+        player.add(body); player.position.y = 1; scene.add(player);
 
-        // --- KẺ ĐỊCH (BOT) ---
+        // Bot kẻ địch
         const enemies = [];
-        function spawnEnemy() {
-            const bot = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 1.2), new THREE.MeshPhongMaterial({ color: 0xff0000 }));
-            bot.position.set((Math.random()-0.5)*40, 1.1, (Math.random()-0.5)*40);
+        function spawnBot() {
+            const bot = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2, 1.2), new THREE.MeshPhongMaterial({ color: 0xff0000 }));
+            bot.position.set((Math.random()-0.5)*50, 1, (Math.random()-0.5)*50);
             bot.userData = { hp: 100 };
-            scene.add(bot);
-            enemies.push(bot);
+            scene.add(bot); enemies.push(bot);
         }
-        for(let i=0; i<5; i++) spawnEnemy();
+        for(let i=0; i<5; i++) spawnBot();
 
-        // --- HỆ THỐNG ĐIỀU KHIỂN ĐA ĐIỂM ---
+        // --- HỆ THỐNG ĐA ĐIỂM (MULTI-TOUCH) ---
         let joyId = null, lookId = null;
-        let moveX = 0, moveZ = 0, yaw = 0, lastLookX = 0;
+        let moveX = 0, moveY = 0; // Joystick input
+        let yaw = 0; // Hướng xoay camera
+        let lastTouchX = 0, lastTouchY = 0;
         const stick = document.getElementById('joy-stick');
 
         window.addEventListener('touchstart', (e) => {
             for (let t of e.changedTouches) {
-                if (t.clientX < window.innerWidth / 2 && joyId === null) {
-                    joyId = t.identifier;
-                } else if (t.clientX >= window.innerWidth / 2 && lookId === null && t.target.id !== 'fire-btn') {
+                if (t.clientX < window.innerWidth / 2 && joyId === null) joyId = t.identifier;
+                else if (t.clientX >= window.innerWidth / 2 && lookId === null && t.target.id !== 'fire-btn') {
                     lookId = t.identifier;
-                    lastLookX = t.clientX;
+                    lastTouchX = t.clientX; lastTouchY = t.clientY;
                 }
             }
         });
@@ -96,92 +89,79 @@
             for (let t of e.touches) {
                 if (t.identifier === joyId) {
                     let rect = document.getElementById('joy-base').getBoundingClientRect();
-                    let dx = t.clientX - (rect.left + 60), dy = t.clientY - (rect.top + 60);
+                    let dx = t.clientX - (rect.left + 50), dy = t.clientY - (rect.top + 50);
                     let dist = Math.min(Math.hypot(dx, dy), 50);
                     let ang = Math.atan2(dy, dx);
                     stick.style.transform = `translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`;
-                    moveX = Math.cos(ang) * (dist/50);
-                    moveZ = Math.sin(ang) * (dist/50);
+                    moveX = Math.cos(ang) * (dist/50); moveY = Math.sin(ang) * (dist/50);
                 }
                 if (t.identifier === lookId) {
-                    // FIX LỖI ĐẢO NGƯỢC: Đổi từ trừ sang cộng (hoặc ngược lại tùy cảm nhận)
-                    // Ở đây tôi dùng cộng để hướng vuốt trùng hướng quay
-                    yaw += (t.clientX - lastLookX) * 0.007; 
-                    lastLookX = t.clientX;
+                    // XOAY CAMERA: Vuốt sang phải thì Yaw tăng (xoay phải)
+                    let sensitivity = 0.005;
+                    yaw -= (t.clientX - lastTouchX) * sensitivity;
+                    lastTouchX = t.clientX;
                 }
             }
-        });
+        }, { passive: false });
 
         window.addEventListener('touchend', (e) => {
             for (let t of e.changedTouches) {
-                if (t.identifier === joyId) { joyId = null; moveX = 0; moveZ = 0; stick.style.transform = 'none'; }
+                if (t.identifier === joyId) { joyId = null; moveX = 0; moveY = 0; stick.style.transform = 'none'; }
                 if (t.identifier === lookId) lookId = null;
             }
         });
 
-        // --- HỆ THỐNG BẮN & ĐẠN ---
+        // --- BẮN ---
         document.getElementById('fire-btn').addEventListener('touchstart', () => {
             if (navigator.vibrate) navigator.vibrate(40);
-
-            // 1. Tia lửa nòng súng (Muzzle Flash)
-            const flash = new THREE.PointLight(0xffff00, 5, 5);
-            flash.position.copy(player.position).add(new THREE.Vector3(0, 0.5, 0));
-            scene.add(flash);
-            setTimeout(() => scene.remove(flash), 50);
-
-            // 2. Vệt đạn bay (Tracer)
-            const tracerPoints = [
-                new THREE.Vector3(0, 0, 0),
-                new THREE.Vector3(0, 0, 20) // Đạn bay về phía trước
-            ];
-            const tracerGeo = new THREE.BufferGeometry().setFromPoints(tracerPoints);
-            const tracerMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
-            const tracer = new THREE.Line(tracerGeo, tracerMat);
             
+            // Hiệu ứng đạn bay
+            const tracerGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-30)]);
+            const tracer = new THREE.Line(tracerGeo, new THREE.LineBasicMaterial({ color: 0xffff00 }));
             tracer.position.copy(player.position);
             tracer.position.y += 0.5;
-            tracer.rotation.y = player.rotation.y;
+            tracer.rotation.y = yaw;
             scene.add(tracer);
-            setTimeout(() => scene.remove(tracer), 80);
+            setTimeout(() => scene.remove(tracer), 60);
 
-            // 3. Tính sát thương
+            // Check trúng địch (Raycast theo tâm)
             const raycaster = new THREE.Raycaster();
-            // Hướng bắn trùng với hướng nhìn của nhân vật
-            const direction = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
-            raycaster.set(player.position, direction);
-
-            const intersects = raycaster.intersectObjects(enemies);
-            if (intersects.length > 0) {
-                const target = intersects[0].object;
-                target.material.color.set(0xffffff); // Nháy trắng khi trúng
-                target.position.add(direction.clone().multiplyScalar(0.5)); // Đẩy lùi Bot
-                
-                target.userData.hp -= 35;
+            const dir = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+            raycaster.set(player.position, dir);
+            const hits = raycaster.intersectObjects(enemies);
+            if (hits.length > 0) {
+                const b = hits[0].object;
+                b.material.color.set(0xffffff);
+                b.userData.hp -= 35;
                 setTimeout(() => {
-                    target.material.color.set(0xff0000);
-                    if(target.userData.hp <= 0) {
-                        target.position.set((Math.random()-0.5)*40, 1.1, (Math.random()-0.5)*40);
-                        target.userData.hp = 100;
+                    b.material.color.set(0xff0000);
+                    if(b.userData.hp <= 0) {
+                        b.position.set((Math.random()-0.5)*50, 1, (Math.random()-0.5)*50);
+                        b.userData.hp = 100;
                     }
                 }, 100);
             }
         });
 
-        // --- VÒNG LẶP GAME ---
+        // --- GAME LOOP ---
         function animate() {
             requestAnimationFrame(animate);
-            
-            // Di chuyển nhân vật dựa trên hướng camera (yaw)
-            // Lực đẩy nhân vật tiến lên theo hướng camera đang nhìn
-            player.position.x += (Math.cos(yaw) * moveX + Math.sin(yaw) * moveZ) * 0.18;
-            player.position.z += (Math.sin(yaw) * -moveX + Math.cos(yaw) * moveZ) * 0.18;
-            player.rotation.y = yaw + Math.PI/2;
 
-            // Camera follow (Góc nhìn thứ 3)
-            // Camera luôn nằm phía sau nhân vật dựa trên yaw
-            camera.position.x = player.position.x - Math.sin(yaw) * 8;
-            camera.position.z = player.position.z - Math.cos(yaw) * 8;
-            camera.position.y = 4.5;
+            // Di chuyển dựa trên tâm xoay (yaw)
+            // Đẩy Joystick tiến lên (moveY < 0) thì nhân vật đi vào hướng tâm
+            const speed = 0.15;
+            const forward = moveY * speed;
+            const side = moveX * speed;
+
+            player.position.x += Math.sin(yaw) * forward + Math.cos(yaw) * side;
+            player.position.z += Math.cos(yaw) * forward - Math.sin(yaw) * side;
+            
+            player.rotation.y = yaw; // Nhân vật luôn quay mặt theo tâm
+
+            // Camera follow (Góc nhìn thứ 3 chuẩn)
+            camera.position.x = player.position.x + Math.sin(yaw) * 7;
+            camera.position.z = player.position.z + Math.cos(yaw) * 7;
+            camera.position.y = 4;
             camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
 
             renderer.render(scene, camera);
