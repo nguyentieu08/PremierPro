@@ -5,175 +5,181 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PANEL NGUYỄN TIÊU DEV</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500&display=swap');
         
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            background: #050505;
+            background: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
-            perspective: 1000px; /* Cần thiết cho hiệu ứng 3D */
+            perspective: 1500px;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Nền lấp lánh nhẹ phía sau */
-        .bg-glow {
-            position: absolute;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(0, 255, 128, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: 0;
-            transition: 0.1s;
-        }
+        /* Nền vũ trụ xuyên tường */
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
 
-        /* Hộp Glass 3D */
-        .card-3d {
+        /* Container chính 3D */
+        .main-container {
             position: relative;
-            width: 400px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             z-index: 10;
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
-            text-align: center;
         }
 
-        /* Ánh sáng chạy trên viền cực mỏng */
-        .card-3d::before {
-            content: "";
-            position: absolute;
-            inset: 0;
+        /* Hiệu ứng viền cầu vồng chạy cực mạnh */
+        .glass-wrapper {
+            padding: 3px;
             border-radius: 40px;
-            padding: 1px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent, rgba(255,255,255,0.1));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
+            background: linear-gradient(90deg, #ff0000, #ff00ff, #00ffff, #00ff00, #ffff00, #ff0000);
+            background-size: 400% 400%;
+            animation: rainbow-border 4s linear infinite;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
         }
 
-        .header-info {
-            display: flex; justify-content: space-between;
-            font-size: 10px; color: rgba(255,255,255,0.4);
-            margin-bottom: 30px; letter-spacing: 1px;
-            transform: translateZ(20px); /* Nổi lên lớp 3D */
+        @keyframes rainbow-border {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
-        h2 { 
-            color: #fff; font-size: 24px; font-weight: 600; 
-            margin-bottom: 8px; letter-spacing: -0.5px;
-            transform: translateZ(50px);
-        }
-
-        #clock {
-            color: rgba(0, 255, 128, 0.8); font-size: 12px;
-            margin-bottom: 30px; transform: translateZ(30px);
-        }
-
-        .input-group { margin-bottom: 15px; transform: translateZ(40px); }
-        
-        input {
-            width: 100%; padding: 14px 20px;
+        /* Thân hộp Login */
+        .glass-card {
+            width: 450px;
+            padding: 50px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 18px;
-            color: #fff; outline: none; transition: 0.3s;
-            font-size: 15px;
+            backdrop-filter: blur(40px);
+            border-radius: 38px;
+            color: white;
+            text-align: center;
+            transform-style: preserve-3d;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        input:focus { background: rgba(255, 255, 255, 0.1); border-color: rgba(0, 255, 128, 0.4); }
 
-        .btn-login {
-            width: 100%; padding: 14px; margin-top: 10px;
-            background: #fff; color: #000;
-            border: none; border-radius: 18px;
-            font-weight: 600; cursor: pointer;
-            transition: 0.3s; transform: translateZ(60px);
-        }
-        .btn-login:hover { background: #00ff80; transform: translateZ(70px) scale(1.02); }
+        /* Chiều sâu cho từng phần tử */
+        .depth-h { transform: translateZ(80px); font-family: 'Orbitron', sans-serif; letter-spacing: 5px; color: #00ffff; text-shadow: 0 0 20px #00ffff; }
+        .depth-p { transform: translateZ(50px); color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 5px; }
+        .depth-input { transform: translateZ(40px); }
+        .depth-btn { transform: translateZ(100px); }
 
-        .social-row {
-            margin-top: 35px; display: flex; justify-content: center; gap: 15px;
-            transform: translateZ(30px);
+        .sys-header {
+            display: flex; justify-content: space-between;
+            font-size: 10px; margin-bottom: 30px;
+            text-transform: uppercase; letter-spacing: 2px;
         }
-        .social-row a {
-            color: rgba(255,255,255,0.5); text-decoration: none; font-size: 12px;
+
+        input {
+            width: 100%; padding: 15px 25px; margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; color: white; outline: none;
             transition: 0.3s;
         }
-        .social-row a:hover { color: #fff; }
+        input:focus { border-color: #00ffff; background: rgba(0, 255, 255, 0.05); }
+
+        .btn-login {
+            width: 100%; padding: 18px; margin-top: 30px;
+            background: linear-gradient(45deg, #00ffff, #0066ff);
+            border: none; border-radius: 20px; color: white;
+            font-weight: bold; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .social {
+            margin-top: 40px; display: flex; justify-content: center; gap: 20px;
+            transform: translateZ(30px);
+        }
+        .social a { color: white; text-decoration: none; font-size: 11px; opacity: 0.5; transition: 0.3s; }
+        .social a:hover { opacity: 1; color: #00ffff; }
 
     </style>
 </head>
 <body>
 
-    <div class="bg-glow" id="glow"></div>
+<canvas id="stars"></canvas>
 
-    <div class="card-3d" id="card">
-        <div class="header-info">
-            <span id="dev">DEVICE: IPHONE_V6</span>
-            <span id="bat">BATTERY: 100%</span>
-        </div>
+<div class="main-container" id="tilt">
+    <div class="glass-wrapper">
+        <div class="glass-card">
+            <div class="sys-header">
+                <span id="bat">BATTERY: 80%</span>
+                <span id="clock">00:00:00</span>
+            </div>
 
-        <h2>PANEL LOGIN</h2>
-        <div id="clock">00:00:00</div>
+            <h2 class="depth-h">PANEL LOGIN</h2>
+            <p class="depth-p">NGUYỄN TIÊU DEV V.2026</p>
 
-        <div class="input-group">
-            <input type="text" placeholder="Username" autocomplete="off">
-        </div>
-        <div class="input-group">
-            <input type="password" placeholder="Password">
-        </div>
+            <div class="depth-input">
+                <input type="text" placeholder="ACCESS_KEY">
+                <input type="password" placeholder="PASSWORD">
+            </div>
 
-        <button class="btn-login">LOGIN SYSTEM</button>
+            <button class="btn-login depth-btn">SYSTEM BYPASS</button>
 
-        <div class="social-row">
-            <a href="#">Facebook</a>
-            <a href="#">TikTok</a>
-            <a href="#">Zalo</a>
+            <div class="social">
+                <a href="#">FACEBOOK</a>
+                <a href="#">TIKTOK</a>
+                <a href="#">ZALO</a>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const card = document.getElementById('card');
-        const glow = document.getElementById('glow');
+<script>
+    // --- 1. HIỆU ỨNG 3D NGHIÊNG (Tilt) ---
+    const tilt = document.getElementById('tilt');
+    document.addEventListener('mousemove', (e) => {
+        let x = (window.innerWidth / 2 - e.pageX) / 15;
+        let y = (window.innerHeight / 2 - e.pageY) / 15;
+        tilt.style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
+    });
 
-        // Hiệu ứng 3D nghiêng theo chuột
-        document.addEventListener('mousemove', (e) => {
-            let xAxis = (window.innerWidth / 2 - e.pageX) / 20;
-            let yAxis = (window.innerHeight / 2 - e.pageY) / 20;
-            
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-            
-            // Glow chạy theo chuột
-            glow.style.left = `${e.pageX - 250}px`;
-            glow.style.top = `${e.pageY - 250}px`;
+    // --- 2. BỤI SAO BAY XUYÊN TƯỜNG ---
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    const setSize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+    setSize(); window.onresize = setSize;
+
+    const particles = [];
+    for(let i=0; i<200; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 20,
+            vy: (Math.random() - 0.5) * 20,
+            size: Math.random() * 2
         });
+    }
 
-        // Trả về vị trí cũ khi chuột rời đi
-        document.addEventListener('mouseleave', () => {
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#fff";
+        particles.forEach(p => {
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            p.x += p.vx; p.y += p.vy;
+            if(p.x < 0) p.x = w; if(p.x > w) p.x = 0;
+            if(p.y < 0) p.y = h; if(p.y > h) p.y = 0;
         });
+        requestAnimationFrame(draw);
+    }
+    draw();
 
-        // Cập nhật giờ và pin
-        function update() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN');
-            
-            if(navigator.getBattery) {
-                navigator.getBattery().then(b => {
-                    document.getElementById('bat').innerText = "BATTERY: " + Math.round(b.level * 100) + "%";
-                });
-            }
+    // --- 3. CẬP NHẬT PIN & GIỜ ---
+    function updateSys() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('vi-VN');
+        if(navigator.getBattery) {
+            navigator.getBattery().then(b => {
+                document.getElementById('bat').innerText = "BATTERY: " + Math.round(b.level * 100) + "%";
+            });
         }
-        setInterval(update, 1000);
-        update();
-    </script>
+    }
+    setInterval(updateSys, 1000);
+    updateSys();
+</script>
+
 </body>
 </html>
