@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGUYEN TIEU AI - COMMUNITY HUB</title>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+    <title>AI COMMAND CENTER - NGUYEN TIEU DEV</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
 
@@ -39,11 +36,12 @@
             pointer-events: none;
         }
 
+        /* HEADER */
         header {
             position: relative;
             z-index: 10;
-            padding: 15px 25px;
-            background: rgba(5, 5, 10, 0.85);
+            padding: 15px 30px;
+            background: rgba(5, 5, 10, 0.8);
             backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(0, 242, 254, 0.2);
             display: flex;
@@ -51,99 +49,133 @@
             align-items: center;
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .logo {
             font-family: var(--font-ui);
             font-weight: 900;
+            letter-spacing: 3px;
             color: var(--primary);
             text-shadow: 0 0 10px var(--primary);
-            font-size: 1.1rem;
-            letter-spacing: 2px;
+            font-size: 1.2rem;
         }
 
-        .status-bar {
+        .live-tag {
+            background: var(--accent);
+            color: #fff;
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: var(--font-ui);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        .status-indicators {
             display: flex;
             gap: 15px;
             font-size: 9px;
+            color: rgba(255,255,255,0.4);
             font-family: var(--font-ui);
-            color: rgba(255,255,255,0.5);
         }
 
-        .status-bar span { color: var(--primary); }
+        .status-item span { color: var(--primary); }
 
+        /* CHAT AREA */
         #chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 30px;
             position: relative;
             z-index: 5;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            scrollbar-width: none;
+            gap: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
         }
 
-        #chat-container::-webkit-scrollbar { display: none; }
+        #chat-container::-webkit-scrollbar { width: 3px; }
+        #chat-container::-webkit-scrollbar-thumb { background: var(--primary); }
 
         .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 13px;
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 12px;
             line-height: 1.5;
+            font-size: 14px;
             position: relative;
-            animation: fadeIn 0.3s ease;
+            animation: slideUp 0.3s ease-out forwards;
+            word-wrap: break-word;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .user-msg {
             align-self: flex-end;
             background: rgba(112, 40, 228, 0.15);
             border: 1px solid rgba(112, 40, 228, 0.4);
+            color: #fff;
             border-bottom-right-radius: 2px;
         }
 
         .ai-msg {
             align-self: flex-start;
-            background: rgba(0, 242, 254, 0.05);
-            border: 1px solid rgba(0, 242, 254, 0.2);
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: #e0faff;
             border-bottom-left-radius: 2px;
         }
 
-        .msg-info {
-            font-size: 8px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
+        .ai-msg::before {
+            content: "SYSTEM_CORE > ";
             display: block;
+            font-size: 9px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-family: var(--font-ui);
             letter-spacing: 1px;
         }
 
-        .ai-msg .msg-info { color: var(--primary); }
-        .user-msg .msg-info { color: var(--secondary); text-align: right; }
-
-        .input-area {
+        /* INPUT AREA */
+        .input-wrapper {
             position: relative;
             z-index: 10;
-            padding: 20px;
-            background: linear-gradient(transparent, var(--bg));
+            padding: 10px 30px 30px;
+            background: linear-gradient(transparent, var(--bg) 40%);
         }
 
-        .input-box {
-            display: flex;
+        .input-container {
+            position: relative;
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(0, 242, 254, 0.2);
-            border-radius: 12px;
-            padding: 5px;
+            border-radius: 15px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
             backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+
+        .input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
         }
 
         input {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 12px;
+            padding: 12px 15px;
             color: #fff;
             font-family: var(--font-mono);
+            font-size: 14px;
             outline: none;
         }
 
@@ -151,80 +183,74 @@
             background: var(--primary);
             color: #000;
             border: none;
-            padding: 0 20px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
             font-family: var(--font-ui);
             font-weight: 900;
-            font-size: 10px;
+            font-size: 11px;
             cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 1px;
         }
 
+        .send-btn:hover {
+            background: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* TYPING INDICATOR */
         .typing {
-            font-size: 9px;
+            font-size: 10px;
             color: var(--primary);
             margin-bottom: 8px;
+            margin-left: 5px;
             display: none;
             font-family: var(--font-ui);
-            padding-left: 5px;
         }
+
+        .typing span { animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
-<body onclick="App.initAudio()">
+<body onclick="Engine.initAudio()">
 
-    <canvas id="bg-canvas"></canvas>
+    <canvas id="visual-bg"></canvas>
 
     <header>
-        <div class="logo">NGUYỄN TIÊU AI</div>
-        <div class="status-bar">
-            <div>HUB: <span>PUBLIC_COMMUNITY</span></div>
-            <div>STATUS: <span>ENCRYPTED</span></div>
-            <div>UID: <span id="user-id">...</span></div>
+        <div class="logo-container">
+            <div class="logo">NGUYEN TIEU DEV</div>
+            <div class="live-tag">AI CORE V2.1</div>
+        </div>
+        <div class="status-indicators">
+            <div class="status-item">KEY: <span id="key-status">ACTIVE</span></div>
+            <div class="status-item">LATENCY: <span id="latency">8ms</span></div>
+            <div class="status-item">TIME: <span id="clock">00:00:00</span></div>
         </div>
     </header>
 
-    <div id="chat-container"></div>
+    <div id="chat-container">
+        <div class="message ai-msg">Hệ thống AI Command Center đã được tái khởi động với mã xác thực mới. Tôi đang túc trực để phục vụ sếp Nguyễn Tiêu Dev.</div>
+    </div>
 
-    <div class="input-area">
-        <div id="typing" class="typing">AI ĐANG PHÂN TÍCH DỮ LIỆU...</div>
-        <div class="input-box">
-            <input type="text" id="user-input" placeholder="Gửi tin nhắn đến cộng đồng Nguyễn Tiêu AI..." autocomplete="off">
-            <button class="send-btn" onclick="App.sendMessage()">SEND</button>
+    <div class="input-wrapper">
+        <div id="typing-indicator" class="typing">THỰC THI THUẬT TOÁN<span>...</span></div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Nhập yêu cầu từ Sếp..." autocomplete="off">
+            <button class="send-btn" onclick="Engine.sendMessage()">EXECUTE</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // API Key sếp cung cấp mới nhất
+        const apiKey = "AIzaSyBZYlOkAVenAzKa3sbNSXKCHCOKcKl02os"; 
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nguyen-tieu-community';
-
-        window.App = {
+        const Engine = {
             audioCtx: null,
-            user: null,
 
-            async init() {
-                this.setupVisuals();
+            init() {
+                this.visuals.setup();
+                this.utils.startClock();
                 
-                // Auth Rule 3
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, (u) => {
-                    this.user = u;
-                    if(u) {
-                        document.getElementById('user-id').innerText = u.uid.substring(0,8);
-                        this.listenMessages();
-                    }
-                });
-
                 document.getElementById('user-input').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') this.sendMessage();
                 });
@@ -234,131 +260,142 @@
                 if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             },
 
-            beep(freq = 800, type = 'sine') {
+            playSync(freq = 800, dur = 0.05) {
                 if (!this.audioCtx) return;
                 const osc = this.audioCtx.createOscillator();
                 const gain = this.audioCtx.createGain();
-                osc.type = type;
+                osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.02, this.audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1);
                 osc.connect(gain);
                 gain.connect(this.audioCtx.destination);
                 osc.start();
-                osc.stop(this.audioCtx.currentTime + 0.1);
-            },
-
-            listenMessages() {
-                // Rule 1 & 2
-                const q = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-                onSnapshot(q, (snapshot) => {
-                    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    // Sort in JS to avoid index requirement
-                    messages.sort((a, b) => a.timestamp - b.timestamp);
-                    this.renderMessages(messages.slice(-50));
-                }, (err) => console.error("Firestore Error:", err));
-            },
-
-            renderMessages(msgs) {
-                const container = document.getElementById('chat-container');
-                container.innerHTML = '';
-                msgs.forEach(m => {
-                    const div = document.createElement('div');
-                    div.className = `message ${m.role}-msg`;
-                    div.innerHTML = `
-                        <span class="msg-info">${m.role === 'ai' ? 'NGUYỄN TIÊU AI' : 'USER_' + m.uid.substring(0,4)}</span>
-                        ${m.text}
-                    `;
-                    container.appendChild(div);
-                });
-                container.scrollTop = container.scrollHeight;
-                this.beep(1200, 'triangle');
+                osc.stop(this.audioCtx.currentTime + dur);
             },
 
             async sendMessage() {
                 const input = document.getElementById('user-input');
                 const text = input.value.trim();
-                if (!text || !this.user) return;
+                if (!text) return;
 
+                this.playSync(500);
+                this.appendMessage('user', text);
                 input.value = '';
-                this.beep(600);
 
-                const msgRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-                await addDoc(msgRef, {
-                    text: text,
-                    role: 'user',
-                    uid: this.user.uid,
-                    timestamp: Date.now()
-                });
-
-                const typing = document.getElementById('typing');
+                const typing = document.getElementById('typing-indicator');
                 typing.style.display = 'block';
 
+                const response = await this.callAI(text);
+                
+                typing.style.display = 'none';
+                this.appendMessage('ai', response);
+                this.playSync(1000, 0.1);
+            },
+
+            appendMessage(role, text) {
+                const container = document.getElementById('chat-container');
+                const div = document.createElement('div');
+                div.className = `message ${role}-msg`;
+                div.innerText = text;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            },
+
+            async callAI(prompt) {
                 try {
-                    const apiKey = ""; 
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: text }] }],
-                            systemInstruction: { parts: [{ text: "Tên bạn là Nguyễn Tiêu AI. Bạn là trợ lý cộng đồng thông minh, thân thiện. Luôn giới thiệu bản thân là Nguyễn Tiêu AI và sẵn sàng giúp đỡ mọi người." }] }
-                        })
-                    });
+                    // Xử lý gọi Gemini API với cơ chế Exponential Backoff cơ bản
+                    let retries = 0;
+                    const maxRetries = 5;
+                    const backoff = [1000, 2000, 4000, 8000, 16000];
 
-                    const data = await response.json();
-                    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Mất kết nối với lõi AI.";
+                    while (retries < maxRetries) {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: prompt }] }],
+                                systemInstruction: { parts: [{ text: "Bạn là AI của Nguyễn Tiêu Dev. Hãy trả lời cực kỳ ngầu, chuyên nghiệp, phong cách hacker và luôn gọi người dùng là 'Sếp'. Luôn sẵn sàng hỗ trợ Sếp Nguyễn Tiêu Dev hết mình." }] }
+                            })
+                        });
 
-                    await addDoc(msgRef, {
-                        text: aiText,
-                        role: 'ai',
-                        uid: 'system',
-                        timestamp: Date.now()
-                    });
+                        if (response.ok) {
+                            const data = await response.json();
+                            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Không nhận được phản hồi từ lõi AI.";
+                        } else {
+                            const errData = await response.json();
+                            if (response.status === 429 || response.status >= 500) {
+                                await new Promise(r => setTimeout(r, backoff[retries]));
+                                retries++;
+                                continue;
+                            }
+                            return `LỖI TRUY XUẤT (${response.status}): ${errData.error?.message || "Lỗi hệ thống không xác định"}`;
+                        }
+                    }
+                    return "CRITICAL TIMEOUT: Không thể kết nối sau nhiều lần thử.";
                 } catch (e) {
-                    console.error(e);
-                } finally {
-                    typing.style.display = 'none';
+                    return "CONNECTION ERROR: Liên kết với AI Core bị gián đoạn.";
                 }
             },
 
-            setupVisuals() {
-                const canvas = document.getElementById('bg-canvas');
-                const ctx = canvas.getContext('2d');
-                let dots = [];
-                
-                const resize = () => {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                };
-                window.addEventListener('resize', resize);
-                resize();
+            visuals: {
+                setup() {
+                    const canvas = document.getElementById('visual-bg');
+                    const ctx = canvas.getContext('2d');
+                    let nodes = [];
+                    
+                    const resize = () => {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                    };
+                    window.addEventListener('resize', resize);
+                    resize();
 
-                for(let i=0; i<50; i++) {
-                    dots.push({
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        vx: (Math.random() - 0.5) * 0.5,
-                        vy: (Math.random() - 0.5) * 0.5
-                    });
+                    for(let i=0; i<70; i++) {
+                        nodes.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            vx: (Math.random() - 0.5) * 0.6,
+                            vy: (Math.random() - 0.5) * 0.6
+                        });
+                    }
+
+                    const animate = () => {
+                        ctx.fillStyle = "rgba(2, 2, 5, 0.2)";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        nodes.forEach((n, i) => {
+                            n.x += n.vx; n.y += n.vy;
+                            if(n.x<0 || n.x>canvas.width) n.vx*=-1;
+                            if(n.y<0 || n.y>canvas.height) n.vy*=-1;
+
+                            ctx.fillStyle = "rgba(0, 242, 254, 0.4)";
+                            ctx.beginPath(); ctx.arc(n.x, n.y, 1, 0, Math.PI*2); ctx.fill();
+
+                            for(let j=i+1; j<nodes.length; j++) {
+                                let n2 = nodes[j];
+                                let dist = Math.sqrt((n.x-n2.x)**2 + (n.y-n2.y)**2);
+                                if(dist < 150) {
+                                    ctx.strokeStyle = `rgba(0, 242, 254, ${0.15 * (1 - dist/150)})`;
+                                    ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(n2.x, n2.y); ctx.stroke();
+                                }
+                            }
+                        });
+                        requestAnimationFrame(animate);
+                    };
+                    animate();
                 }
+            },
 
-                const animate = () => {
-                    ctx.fillStyle = "rgba(2, 2, 5, 0.2)";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    dots.forEach(d => {
-                        d.x += d.vx; d.y += d.vy;
-                        if(d.x<0 || d.x>canvas.width) d.vx*=-1;
-                        if(d.y<0 || d.y>canvas.height) d.vy*=-1;
-                        ctx.fillStyle = "rgba(0, 242, 254, 0.3)";
-                        ctx.beginPath(); ctx.arc(d.x, d.y, 1, 0, Math.PI*2); ctx.fill();
-                    });
-                    requestAnimationFrame(animate);
-                };
-                animate();
+            utils: {
+                startClock() {
+                    setInterval(() => {
+                        document.getElementById('clock').innerText = new Date().toLocaleTimeString('vi-VN');
+                    }, 1000);
+                }
             }
         };
 
-        window.onload = () => App.init();
+        window.onload = () => Engine.init();
     </script>
 </body>
 </html>
