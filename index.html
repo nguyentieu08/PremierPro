@@ -2,358 +2,399 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NGUYỄN TIÊU - CHAT AI PRO</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGUYEN TIEU AI - COMMUNITY HUB</title>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap');
 
         :root {
-            --gemini-blue: #4285f4;
-            --gemini-purple: #9b72cb;
-            --gemini-red: #d96570;
-            --bg-dark: #131314;
-            --surface: #1e1e20;
-            --text-main: #e3e3e3;
+            --primary: #00f2fe;
+            --secondary: #7028e4;
+            --accent: #ff0055;
+            --bg: #020205;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-ui: 'Orbitron', sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
             height: 100vh;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: var(--font-mono);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        /* Header phong cách hiện đại */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         header {
-            padding: 16px 24px;
+            position: relative;
+            z-index: 10;
+            padding: 10px 20px;
+            background: rgba(5, 5, 10, 0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(19, 19, 20, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 100;
         }
 
-        .brand {
-            font-family: 'Plus+Jakarta+Sans', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--gemini-blue), var(--gemini-purple), var(--gemini-red));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .logo {
+            font-family: var(--font-ui);
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
         }
 
-        /* Chat container */
-        #chat-window {
+        .status-bar {
+            display: flex;
+            gap: 12px;
+            font-size: 8px;
+            font-family: var(--font-ui);
+            color: rgba(255,255,255,0.4);
+        }
+
+        .status-bar span { color: var(--primary); }
+
+        #chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            scroll-behavior: smooth;
-        }
-
-        .msg-wrapper {
-            display: flex;
-            flex-direction: column;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-wrapper { align-items: flex-end; }
-        .ai-wrapper { align-items: flex-start; }
-
-        .sender-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #8e918f;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .ai-wrapper .sender-label { color: var(--gemini-blue); }
-
-        .bubble {
-            padding: 12px 20px;
-            border-radius: 18px;
-            line-height: 1.6;
-            font-size: 1rem;
-            word-wrap: break-word;
-            max-width: 100%;
-        }
-
-        .user-wrapper .bubble {
-            background-color: #2b2b2b;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ai-wrapper .bubble {
-            background-color: transparent;
-            padding: 0;
-            color: var(--text-main);
-        }
-
-        /* Markdown Styling */
-        .bubble p { margin-bottom: 12px; }
-        .bubble ul, .bubble ol { margin-left: 20px; margin-bottom: 12px; }
-        .bubble code { background: #2b2b2b; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
-        .bubble pre { background: #000; padding: 15px; border-radius: 12px; overflow-x: auto; margin: 10px 0; }
-
-        /* Input Area */
-        .input-container {
-            padding: 20px;
-            max-width: 840px;
-            width: 100%;
-            margin: 0 auto;
+            padding: 15px;
             position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scrollbar-width: none;
+        }
+
+        #chat-container::-webkit-scrollbar { display: none; }
+
+        .message {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            position: relative;
+            animation: fadeIn 0.2s ease-out;
+            word-wrap: break-word;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Định dạng nội dung giống Gemini (Markdown-like) */
+        .message p { margin-bottom: 8px; }
+        .message ul, .message ol { margin-left: 20px; margin-bottom: 8px; }
+        .message strong { color: var(--primary); }
+        .message code { background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px; font-size: 0.9em; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .user-msg {
+            align-self: flex-end;
+            background: rgba(112, 40, 228, 0.2);
+            border: 1px solid rgba(112, 40, 228, 0.5);
+            border-bottom-right-radius: 2px;
+        }
+
+        .ai-msg {
+            align-self: flex-start;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-bottom-left-radius: 2px;
+            color: #e0faff;
+        }
+
+        .msg-info {
+            font-size: 7px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+            letter-spacing: 1px;
+            font-family: var(--font-ui);
+            font-weight: 700;
+            opacity: 0.7;
+        }
+
+        .ai-msg .msg-info { color: var(--primary); }
+        .user-msg .msg-info { color: var(--secondary); text-align: right; }
+
+        .input-area {
+            position: relative;
+            z-index: 10;
+            padding: 15px;
+            background: linear-gradient(transparent, var(--bg) 40%);
         }
 
         .input-box {
-            background: var(--surface);
-            border-radius: 30px;
-            padding: 8px 20px;
             display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: box-shadow 0.2s;
-            border: 1px solid #3c4043;
+            background: rgba(20, 20, 30, 0.6);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 20px;
+            padding: 4px 6px;
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            margin: 0 auto;
+            transition: all 0.3s;
         }
 
         .input-box:focus-within {
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
-            border-color: #5f6368;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
         }
 
         input {
             flex: 1;
             background: transparent;
             border: none;
-            color: white;
-            padding: 12px 0;
-            font-size: 1rem;
+            padding: 10px 15px;
+            color: #fff;
+            font-family: var(--font-mono);
             outline: none;
+            font-size: 14px;
         }
 
-        .btn-send {
-            background: none;
+        .send-btn {
+            background: var(--primary);
+            color: #000;
             border: none;
-            color: var(--gemini-blue);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-family: var(--font-ui);
+            font-weight: 900;
+            font-size: 16px;
             cursor: pointer;
-            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.1s;
+            transition: transform 0.2s;
         }
 
-        .btn-send:active { transform: scale(0.9); }
+        .send-btn:active { transform: scale(0.9); }
 
-        /* Loading Animation */
-        .dots-container {
-            display: flex;
-            gap: 4px;
-            padding: 10px 0;
+        .typing {
+            font-size: 8px;
+            color: var(--primary);
+            margin-bottom: 6px;
+            display: none;
+            font-family: var(--font-ui);
+            text-align: center;
+            letter-spacing: 1px;
         }
-        .dot {
-            width: 4px; height: 4px;
-            background: var(--gemini-blue);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
-        }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
-        }
-
-        /* Status Info */
-        .meta-info { font-size: 11px; color: #5f6368; margin-bottom: 20px; text-align: center; }
     </style>
 </head>
-<body>
+<body onclick="App.initAudio()">
+
+    <canvas id="bg-canvas"></canvas>
 
     <header>
-        <div class="brand">Nguyễn Tiêu AI</div>
-        <div style="font-size: 12px; color: #8e918f;" id="conn-status">Đang kết nối...</div>
+        <div class="logo">NGUYỄN TIÊU AI</div>
+        <div class="status-bar">
+            <div>HUB: <span>COMMUNITY</span></div>
+            <div>ID: <span id="user-id">...</span></div>
+        </div>
     </header>
 
-    <div id="chat-window">
-        <div class="msg-wrapper ai-wrapper">
-            <span class="sender-label">NGUYỄN TIÊU AI</span>
-            <div class="bubble">Chào bạn! Tôi là Nguyễn Tiêu AI, được tối ưu hóa để hỗ trợ bạn một cách riêng tư và thông minh. Hôm nay tôi có thể giúp gì cho bạn?</div>
-        </div>
-    </div>
+    <div id="chat-container"></div>
 
-    <div class="input-container">
-        <div id="loading" style="display: none; margin-left: 20px;">
-            <div class="dots-container">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-        </div>
+    <div class="input-area">
+        <div id="typing" class="typing">NGUYỄN TIÊU AI ĐANG XỬ LÝ DỮ LIỆU...</div>
         <div class="input-box">
-            <input type="text" id="user-input" placeholder="Nhập câu hỏi tại đây..." autocomplete="off">
-            <button class="btn-send" onclick="App.handleSend()">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-            </button>
+            <input type="text" id="user-input" placeholder="Nhập tin nhắn..." autocomplete="off">
+            <button class="send-btn" onclick="App.sendMessage()">></button>
         </div>
-        <p class="meta-info">Nguyễn Tiêu AI có thể đưa ra thông tin không chính xác. Hãy kiểm tra lại các phản hồi quan trọng.</p>
     </div>
 
-    <script>
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const apiKey = ""; // API Key dành cho Gemini
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nguyen-tieu-pro-v2';
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nguyen-tieu-community';
+        const apiKey = ""; 
 
         window.App = {
+            audioCtx: null,
             user: null,
 
             async init() {
-                auth.onAuthStateChanged(async (u) => {
+                this.setupVisuals();
+                
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch(e) { console.error(e); }
+
+                onAuthStateChanged(auth, (u) => {
                     this.user = u;
-                    if (!u) {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await auth.signInWithCustomToken(__initial_auth_token);
-                        } else {
-                            await auth.signInAnonymously();
-                        }
-                    } else {
-                        document.getElementById('conn-status').innerText = "Riêng tư & Bảo mật";
-                        this.loadHistory();
+                    if(u) {
+                        document.getElementById('user-id').innerText = u.uid.substring(0,6).toUpperCase();
+                        this.listenMessages();
                     }
                 });
 
-                document.getElementById('user-input').onkeydown = (e) => {
-                    if (e.key === 'Enter') this.handleSend();
-                };
-            },
-
-            async loadHistory() {
-                if (!this.user) return;
-                const messagesRef = db.collection('artifacts').doc(appId).collection('users').doc(this.user.uid).collection('messages');
-                
-                messagesRef.orderBy('timestamp', 'asc').limit(30).get().then(snap => {
-                    const win = document.getElementById('chat-window');
-                    if(snap.empty) return;
-                    win.innerHTML = '';
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        this.renderMessage(data.role, data.text, false);
-                    });
-                    win.scrollTop = win.scrollHeight;
+                document.getElementById('user-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
                 });
             },
 
-            renderMessage(role, text, isNew = false) {
-                const win = document.getElementById('chat-window');
-                const wrapper = document.createElement('div');
-                wrapper.className = `msg-wrapper ${role}-wrapper`;
-                
-                const label = role === 'ai' ? 'NGUYỄN TIÊU AI' : 'BẠN';
-                wrapper.innerHTML = `
-                    <span class="sender-label">${label}</span>
-                    <div class="bubble" id="${isNew && role === 'ai' ? 'latest-ai' : ''}">
-                        ${role === 'user' ? text : marked.parse(text)}
-                    </div>
-                `;
-                
-                win.appendChild(wrapper);
-                win.scrollTop = win.scrollHeight;
-
-                if (isNew && role === 'ai') {
-                    this.typeEffect(document.getElementById('latest-ai'), text);
-                }
+            initAudio() {
+                if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             },
 
-            typeEffect(element, text) {
-                let i = 0;
-                element.innerHTML = "";
-                const rawHtml = marked.parse(text);
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = rawHtml;
-                const plainText = tempDiv.innerText;
-                
-                const speed = 15; // Tốc độ gõ chữ
-                
-                const timer = setInterval(() => {
-                    if (i < text.length) {
-                        // Mô phỏng hiệu ứng gõ dần nhưng hiển thị theo Markdown
-                        element.innerHTML = marked.parse(text.substring(0, i + 1));
-                        i++;
-                        document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
-                    } else {
-                        clearInterval(timer);
-                        element.removeAttribute('id');
-                    }
-                }, speed);
+            // GIỮ NGUYÊN TIẾNG BÍP ĐẶC TRƯNG
+            playSync(freq = 800, dur = 0.05) {
+                if (!this.audioCtx) return;
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.015, this.audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + dur);
             },
 
-            async handleSend() {
+            listenMessages() {
+                const q = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
+                onSnapshot(q, (snapshot) => {
+                    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                    this.renderMessages(messages.slice(-40));
+                });
+            },
+
+            renderMessages(msgs) {
+                const container = document.getElementById('chat-container');
+                container.innerHTML = '';
+                msgs.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = `message ${m.role}-msg`;
+                    const sender = m.role === 'ai' ? 'NGUYỄN TIÊU AI' : `ID_${m.uid?.substring(0,4).toUpperCase()}`;
+                    
+                    // Sử dụng marked để render giống Gemini nếu là AI
+                    const content = m.role === 'ai' ? marked.parse(m.text) : m.text;
+                    
+                    div.innerHTML = `<span class="msg-info">${sender}</span><div class="content-body">${content}</div>`;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+                this.playSync(1000, 0.08);
+            },
+
+            async sendMessage() {
                 const input = document.getElementById('user-input');
                 const text = input.value.trim();
                 if (!text || !this.user) return;
 
                 input.value = '';
-                this.renderMessage('user', text, true);
+                this.playSync(500, 0.05);
+
+                const msgRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
                 
-                const loading = document.getElementById('loading');
-                loading.style.display = 'block';
-
                 try {
-                    // Lưu tin nhắn người dùng vào Firebase
-                    const messagesRef = db.collection('artifacts').doc(appId).collection('users').doc(this.user.uid).collection('messages');
-                    await messagesRef.add({ role: 'user', text: text, timestamp: Date.now() });
+                    await addDoc(msgRef, {
+                        text: text,
+                        role: 'user',
+                        uid: this.user.uid,
+                        timestamp: Date.now()
+                    });
 
-                    // Gọi API Gemini
+                    document.getElementById('typing').style.display = 'block';
+
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             contents: [{ parts: [{ text: text }] }],
                             systemInstruction: { 
-                                parts: [{ text: "Bạn là Nguyễn Tiêu AI. Hãy trả lời cực kỳ chuyên nghiệp, hữu ích, cấu trúc rõ ràng giống Gemini. Sử dụng Markdown để trình bày đẹp mắt. Ngôn ngữ: Tiếng Việt." }] 
+                                parts: [{ text: "Tên bạn là Nguyễn Tiêu AI. Bạn là một trợ lý AI thông minh bậc nhất, trả lời người dùng với phong cách chuyên nghiệp, chi tiết, trình bày rõ ràng (sử dụng danh sách, in đậm nếu cần) giống hệt Gemini. Luôn luôn bắt đầu hoặc kết thúc bằng việc khẳng định mình là Nguyễn Tiêu AI và sẵn sàng hỗ trợ cộng đồng." }] 
                             }
                         })
                     });
 
                     const data = await response.json();
-                    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi gặp sự cố kết nối. Vui lòng thử lại.";
+                    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Mất kết nối với lõi xử lý của Nguyễn Tiêu AI...";
 
-                    // Lưu và hiển thị phản hồi AI
-                    await messagesRef.add({ role: 'ai', text: aiText, timestamp: Date.now() });
-                    loading.style.display = 'none';
-                    this.renderMessage('ai', aiText, true);
+                    await addDoc(msgRef, {
+                        text: aiText,
+                        role: 'ai',
+                        uid: 'system',
+                        timestamp: Date.now()
+                    });
 
-                } catch (e) {
-                    loading.style.display = 'none';
-                    this.renderMessage('ai', "Đã xảy ra lỗi hệ thống. Vui lòng kiểm tra kết nối mạng.", true);
+                } catch (e) { console.error(e); }
+                finally { document.getElementById('typing').style.display = 'none'; }
+            },
+
+            setupVisuals() {
+                const canvas = document.getElementById('bg-canvas');
+                const ctx = canvas.getContext('2d');
+                let nodes = [];
+                
+                const resize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+                window.addEventListener('resize', resize);
+                resize();
+
+                for(let i=0; i<45; i++) {
+                    nodes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3
+                    });
                 }
+
+                const animate = () => {
+                    ctx.fillStyle = "rgba(2, 2, 5, 0.25)";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    nodes.forEach((n, i) => {
+                        n.x += n.vx; n.y += n.vy;
+                        if(n.x<0 || n.x>canvas.width) n.vx*=-1;
+                        if(n.y<0 || n.y>canvas.height) n.vy*=-1;
+                        ctx.fillStyle = "rgba(0, 242, 254, 0.2)";
+                        ctx.beginPath(); ctx.arc(n.x, n.y, 1, 0, Math.PI*2); ctx.fill();
+
+                        for(let j=i+1; j<nodes.length; j++) {
+                            let n2 = nodes[j];
+                            let dist = Math.hypot(n.x - n2.x, n.y - n2.y);
+                            if(dist < 130) {
+                                ctx.strokeStyle = `rgba(0, 242, 254, ${0.08 * (1 - dist/130)})`;
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(n2.x, n2.y); ctx.stroke();
+                            }
+                        }
+                    });
+                    requestAnimationFrame(animate);
+                };
+                animate();
             }
         };
 
