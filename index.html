@@ -3,209 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTube Background - Chạy Nền Pro</title>
+    <title>YouTube Dual Engine 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root { --yt-black: #0f0f0f; }
-        body { background-color: var(--yt-black); color: white; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Hiệu ứng mượt cho trình phát */
-        #player-overlay {
-            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-            will-change: transform;
+        :root {
+            --yt-red: #ff0000;
+            --yt-black: #0f0f0f;
+            --yt-dark: #1a1a1a;
         }
-        
-        /* Tạo hiệu ứng phát sáng cho video đang chạy */
-        .video-active { border: 2px solid #ff0000; }
-        
-        /* Floating Button for PiP */
-        .pip-float {
-            position: fixed;
-            right: 20px;
-            bottom: 100px;
-            background: #ff0000;
-            width: 50px;
-            height: 50px;
+
+        body {
+            background-color: var(--yt-black);
+            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+        }
+
+        .dual-container {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            height: 100vh;
+            gap: 4px;
+            background: #222;
+        }
+
+        .engine-panel {
+            background: var(--yt-black);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            height: 40px;
+            background: var(--yt-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid #333;
+        }
+
+        .search-bar {
+            background: #222;
+            border-radius: 20px;
+            padding: 4px 12px;
+            width: 60%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 11px;
+            width: 100%;
+        }
+
+        .video-wrapper {
+            flex: 1;
+            position: relative;
+            background: #000;
+        }
+
+        iframe, video {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .control-overlay {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .action-btn {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
             border-radius: 50%;
-            display: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(255,0,0,0.4);
-            z-index: 300;
+            border: 1px solid #444;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .dual-container {
+                grid-template-rows: 1fr 1fr;
+            }
         }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <!-- HEADER -->
-    <header class="fixed top-0 w-full h-14 bg-[#0f0f0f]/95 backdrop-blur-md flex items-center justify-between px-4 z-[100] border-b border-[#222]">
-        <div class="flex items-center gap-1">
-            <i data-lucide="play" class="fill-red-600 text-red-600 w-6 h-6"></i>
-            <span class="text-lg font-bold tracking-tighter">Premium Play</span>
-        </div>
-        <div class="flex-1 mx-4">
-            <div class="flex items-center bg-[#222] rounded-full px-4 py-1.5">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm & Chạy nền..." class="bg-transparent w-full outline-none text-sm">
-                <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+    <div class="dual-container">
+        <!-- ENGINE 1: YOUTUBE EMBED / SEARCH -->
+        <div class="engine-panel" id="panel-1">
+            <div class="panel-header">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="youtube" class="text-red-600 w-4 h-4"></i>
+                    <span>YouTube Engine</span>
+                </div>
+                <div class="search-bar">
+                    <i data-lucide="link" class="w-3 h-3 text-gray-500"></i>
+                    <input type="text" id="url-input-1" placeholder="Dán link YouTube vào đây..." onkeypress="handleUrl(event, 1)">
+                </div>
+                <i data-lucide="maximize-2" class="w-4 h-4 text-gray-400"></i>
+            </div>
+            <div class="video-wrapper" id="video-container-1">
+                <div class="flex items-center justify-center h-full text-gray-600 flex-col gap-2">
+                    <i data-lucide="play-circle" class="w-12 h-12"></i>
+                    <p class="text-xs uppercase tracking-widest">Sẵn sàng phát</p>
+                </div>
+            </div>
+            <div class="control-overlay">
+                <button class="action-btn" onclick="togglePiP(1)"><i data-lucide="external-link" class="w-4 h-4"></i></button>
             </div>
         </div>
-        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">N</div>
-    </header>
 
-    <!-- CATEGORIES -->
-    <div class="fixed top-14 w-full h-12 bg-[#0f0f0f] z-[90] flex items-center gap-3 px-4 overflow-x-auto no-scrollbar border-b border-[#222]">
-        <div class="bg-white text-black px-3 py-1 rounded-full text-sm font-medium">Tất cả</div>
-        <div class="bg-[#272727] px-3 py-1 rounded-full text-sm font-medium">Âm nhạc</div>
-        <div class="bg-[#272727] px-3 py-1 rounded-full text-sm font-medium">Game</div>
-        <div class="bg-[#272727] px-3 py-1 rounded-full text-sm font-medium">Thư giãn</div>
-    </div>
-
-    <!-- VIDEO GRID -->
-    <main class="mt-28 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="videoGrid">
-        <!-- Videos rendered by JS -->
-    </main>
-
-    <!-- FULL PLAYER (Support Background) -->
-    <div id="player-overlay" class="fixed inset-0 bg-black z-[200] translate-y-full flex flex-col">
-        <div class="w-full aspect-video bg-black relative">
-            <video id="main-video" class="w-full h-full" controls playsinline loop></video>
-            <button onclick="minimizePlayer()" class="absolute top-4 left-4 p-2 bg-black/40 rounded-full">
-                <i data-lucide="chevron-down"></i>
-            </button>
-        </div>
-        
-        <div class="flex-1 bg-[#0f0f0f] p-4 overflow-y-auto">
-            <h1 id="p-title" class="text-xl font-bold">Tiêu đề video</h1>
-            <p id="p-meta" class="text-sm text-gray-400 mt-1">100K lượt xem • 1 giờ trước</p>
-            
-            <div class="flex gap-4 mt-6">
-                <button onclick="toggleBackgroundMode()" class="flex-1 bg-[#272727] py-3 rounded-xl flex flex-col items-center gap-1">
-                    <i data-lucide="picture-in-picture-2"></i>
-                    <span class="text-xs">Cửa sổ nổi</span>
-                </button>
-                <button class="flex-1 bg-[#272727] py-3 rounded-xl flex flex-col items-center gap-1">
-                    <i data-lucide="download"></i>
-                    <span class="text-xs">Tải xuống</span>
-                </button>
-                <button class="flex-1 bg-[#272727] py-3 rounded-xl flex flex-col items-center gap-1">
-                    <i data-lucide="share-2"></i>
-                    <span class="text-xs">Chia sẻ</span>
-                </button>
+        <!-- ENGINE 2: PARALLEL DISCOVERY -->
+        <div class="engine-panel" id="panel-2">
+            <div class="panel-header">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="layers" class="text-blue-500 w-4 h-4"></i>
+                    <span>Parallel Stream</span>
+                </div>
+                <div class="search-bar">
+                    <i data-lucide="search" class="w-3 h-3 text-gray-500"></i>
+                    <input type="text" id="url-input-2" placeholder="Tìm kiếm video song song..." onkeypress="handleUrl(event, 2)">
+                </div>
+                <i data-lucide="settings" class="w-4 h-4 text-gray-400"></i>
             </div>
-
-            <div class="mt-8">
-                <h3 class="font-bold mb-4">Gợi ý tiếp theo</h3>
-                <div id="next-videos" class="space-y-4"></div>
+            <div class="video-wrapper" id="video-container-2">
+                <video id="native-video-2" class="hidden" controls playsinline loop></video>
+                <div id="placeholder-2" class="flex items-center justify-center h-full text-gray-600 flex-col gap-2">
+                    <i data-lucide="music" class="w-12 h-12"></i>
+                    <p class="text-xs uppercase tracking-widest">Kênh phụ đa nhiệm</p>
+                </div>
+            </div>
+            <div class="control-overlay">
+                <button class="action-btn" onclick="togglePiP(2)"><i data-lucide="picture-in-picture" class="w-4 h-4"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- FLOATING PIP BUTTON -->
-    <button id="pip-btn" class="pip-float" onclick="toggleBackgroundMode()">
-        <i data-lucide="external-link"></i>
-    </button>
-
-    <!-- BOTTOM NAV -->
-    <nav class="fixed bottom-0 w-full h-16 bg-[#0f0f0f] border-t border-[#222] flex items-center justify-around z-[150]">
-        <div class="flex flex-col items-center"><i data-lucide="home"></i><span class="text-[10px]">Trang chủ</span></div>
-        <div class="flex flex-col items-center text-gray-400"><i data-lucide="play-circle"></i><span class="text-[10px]">Shorts</span></div>
-        <div class="flex flex-col items-center text-gray-400"><i data-lucide="library"></i><span class="text-[10px]">Thư viện</span></div>
-    </nav>
+    <!-- GLOBAL NAV -->
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black/80 backdrop-blur-xl border border-white/10 px-8 py-3 rounded-full z-[100] shadow-2xl">
+        <i data-lucide="home" class="w-5 h-5 text-red-600"></i>
+        <i data-lucide="compass" class="w-5 h-5 text-gray-400"></i>
+        <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center -mt-8 border-4 border-[#0f0f0f]">
+            <i data-lucide="plus" class="w-6 h-6 text-white"></i>
+        </div>
+        <i data-lucide="message-circle" class="w-5 h-5 text-gray-400"></i>
+        <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+    </div>
 
     <script>
         lucide.createIcons();
 
-        const videoData = [
-            { id: 1, title: "Nhạc Lofi Chill thư giãn 24/7", channel: "Lofi Study", thumb: "https://picsum.photos/seed/music/600/340", src: "https://vjs.zencdn.net/v/oceans.mp4" },
-            { id: 2, title: "Hướng dẫn lập trình Web chạy nền", channel: "Dev Pro", thumb: "https://picsum.photos/seed/code/600/340", src: "https://www.w3schools.com/html/mov_bbb.mp4" },
-            { id: 3, title: "Review du lịch Nhật Bản mùa hoa anh đào", channel: "Traveler", thumb: "https://picsum.photos/seed/japan/600/340", src: "https://www.w3schools.com/html/movie.mp4" },
-            { id: 4, title: "Top 10 món ăn đường phố Sài Gòn", channel: "Foodie", thumb: "https://picsum.photos/seed/food/600/340", src: "https://vjs.zencdn.net/v/oceans.mp4" }
-        ];
+        function handleUrl(event, engineId) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const val = input.value;
+                const container = document.getElementById(`video-container-${engineId}`);
 
-        const videoGrid = document.getElementById('videoGrid');
-        const overlay = document.getElementById('player-overlay');
-        const mainVideo = document.getElementById('main-video');
-        const pipBtn = document.getElementById('pip-btn');
-
-        // Render danh sách video
-        function initApp() {
-            videoGrid.innerHTML = videoData.map(v => `
-                <div class="cursor-pointer" onclick="playVideo(${v.id})">
-                    <div class="relative aspect-video rounded-xl overflow-hidden bg-[#222]">
-                        <img src="${v.thumb}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex gap-3 mt-3">
-                        <div class="w-9 h-9 rounded-full bg-blue-600 flex-shrink-0"></div>
-                        <div>
-                            <h3 class="text-sm font-bold line-clamp-2">${v.title}</h3>
-                            <p class="text-xs text-gray-400">${v.channel} • 1M lượt xem</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                if (val.includes('youtube.com') || val.includes('youtu.be')) {
+                    // Xử lý link YouTube
+                    let videoId = '';
+                    if (val.includes('v=')) videoId = val.split('v=')[1].split('&')[0];
+                    else videoId = val.split('/').pop();
+                    
+                    container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                } else if (val.endsWith('.mp4') || val.includes('stream')) {
+                    // Xử lý link video trực tiếp
+                    const video = document.getElementById(`native-video-2`);
+                    const placeholder = document.getElementById(`placeholder-2`);
+                    placeholder.classList.add('hidden');
+                    video.classList.remove('hidden');
+                    video.src = val;
+                    video.play();
+                } else {
+                    // Fallback search mockup
+                    container.innerHTML = `<div class="p-4 text-xs text-gray-500">Đang tìm kiếm cho: ${val}... <br> <span class="text-blue-500">Gợi ý: Dán link MP4 hoặc YouTube để phát ngay.</span></div>`;
+                }
+                
+                // Cấu hình MediaSession để chạy nền cho video đang phát
+                setupMediaSession(val);
+            }
         }
 
-        // Chơi video và đăng ký MediaSession (Để chạy nền)
-        function playVideo(id) {
-            const v = videoData.find(x => x.id === id);
-            document.getElementById('p-title').innerText = v.title;
-            mainVideo.src = v.src;
-            overlay.style.transform = 'translateY(0)';
-            mainVideo.play();
-            pipBtn.style.display = 'flex';
-
-            // Cấu hình MediaSession để điều khiển khi tắt màn hình
+        function setupMediaSession(title) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: v.title,
-                    artist: v.channel,
-                    album: 'YouTube Background Player',
-                    artwork: [
-                        { src: v.thumb, sizes: '512x512', type: 'image/png' }
-                    ]
+                    title: 'YouTube Parallel 2026',
+                    artist: 'Dual Engine Mode',
+                    artwork: [{ src: 'https://picsum.photos/512/512', sizes: '512x512', type: 'image/png' }]
                 });
-
-                // Cho phép hệ thống điều khiển Play/Pause từ màn hình khóa
-                navigator.mediaSession.setActionHandler('play', () => mainVideo.play());
-                navigator.mediaSession.setActionHandler('pause', () => mainVideo.pause());
             }
         }
 
-        function minimizePlayer() {
-            overlay.style.transform = 'translateY(100%)';
-        }
-
-        // Kích hoạt Picture-in-Picture (Chạy cửa sổ nổi trên các ứng dụng khác)
-        async function toggleBackgroundMode() {
+        async function togglePiP(id) {
             try {
-                if (document.pictureInPictureElement) {
-                    await document.exitPictureInPicture();
-                } else {
-                    if (document.pictureInPictureEnabled) {
-                        await mainVideo.requestPictureInPicture();
+                const video = document.querySelector(`#video-container-${id} video`);
+                if (video) {
+                    if (document.pictureInPictureElement) {
+                        await document.exitPictureInPicture();
+                    } else {
+                        await video.requestPictureInPicture();
                     }
+                } else {
+                    alert("Tính năng PiP yêu cầu luồng video trực tiếp. Hãy thử dán link MP4!");
                 }
-            } catch (error) {
-                console.error("PiP Error: ", error);
+            } catch (e) {
+                console.error(e);
             }
         }
-
-        // Tìm kiếm giả lập
-        document.getElementById('searchInput').oninput = (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = videoData.filter(v => v.title.toLowerCase().includes(query));
-            // Cập nhật giao diện tìm kiếm... (tùy chỉnh thêm)
-        };
-
-        // Khởi tạo
-        initApp();
-        
-        // Theo dõi trạng thái video để giữ MediaSession luôn sống
-        mainVideo.onplay = () => { if('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing"; };
-        mainVideo.onpause = () => { if('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused"; };
-
     </script>
 </body>
 </html>
