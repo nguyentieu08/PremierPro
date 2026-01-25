@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTIMATE_FLYING_NEON_2026</title>
+    <title>ULTIMATE_FLYING_NEON_2026_COLORED</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;900&display=swap');
 
@@ -69,14 +69,31 @@
             z-index: 5;
         }
 
-        /* KHUNG ADMIN TOP */
+        /* KHUNG ADMIN TOP - ĐÃ SỬA MÀU */
         .capsule-header {
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 20px; border-radius: 20px; margin-bottom: 35px;
+            padding: 12px 25px; border-radius: 20px; margin-bottom: 35px;
         }
-        .status-text { font-size: 10px; color: #00f2fe; font-weight: 900; letter-spacing: 1px; }
+        
+        /* MÀU PIN: VÀNG NEON */
+        #bat-val { 
+            font-size: 11px; 
+            color: #ffd700; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* MÀU THỜI GIAN: XANH MINT */
+        #time-val { 
+            font-size: 11px; 
+            color: #00ffaa; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
 
         h1 { color: #fff; font-size: 32px; font-weight: 900; letter-spacing: 6px; margin-bottom: 30px; }
 
@@ -136,9 +153,9 @@
             <button class="btn-init">INITIALIZE</button>
 
             <div class="social-dock">
-                <a href="#" class="social-item">FACEBOOK</a>
-                <a href="#" class="social-item">TIKTOK</a>
-                <a href="#" class="social-item">ZALO</a>
+                <a href="https://www.facebook.com/share/1CTXMD4ctG/" class="social-item" target="_blank">FACEBOOK</a>
+                <a href="https://tiktok.com/@nguyentieulive" class="social-item" target="_blank">TIKTOK</a>
+                <a href="https://zalo.me/0353564018" class="social-item" target="_blank">ZALO</a>
             </div>
         </div>
     </div>
@@ -147,19 +164,18 @@
         const canvas = document.getElementById('plexus-canvas');
         const ctx = canvas.getContext('2d');
         let w, h, particles = [];
-        const mouse = { x: null, y: null, radius: 150 };
 
         function init() {
             w = canvas.width = window.innerWidth;
             h = canvas.height = window.innerHeight;
             particles = [];
-            for (let i = 0; i < 150; i++) { // Tăng số lượng hạt lên 150 cho sếp
+            for (let i = 0; i < 150; i++) {
                 particles.push({
                     x: Math.random() * w,
                     y: Math.random() * h,
-                    vx: (Math.random() - 0.5) * 1.5,
-                    vy: (Math.random() - 0.5) * 1.5,
-                    size: Math.random() * 2 + 1
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: (Math.random() - 0.5) * 1.2,
+                    size: Math.random() * 2 + 0.5
                 });
             }
         }
@@ -173,21 +189,20 @@
                 if (p.x < 0 || p.x > w) p.vx *= -1;
                 if (p.y < 0 || p.y > h) p.vy *= -1;
 
-                ctx.fillStyle = "rgba(0, 242, 254, 0.5)";
+                ctx.fillStyle = "rgba(0, 242, 254, 0.4)";
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Vẽ dây kết nối giữa các hạt bay bay
                 for (let j = i + 1; j < particles.length; j++) {
                     let p2 = particles[j];
                     let dx = p.x - p2.x;
                     let dy = p.y - p2.y;
                     let dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < 120) {
-                        ctx.strokeStyle = `rgba(0, 242, 254, ${1 - dist / 120})`;
-                        ctx.lineWidth = 0.5;
+                    if (dist < 100) {
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${1 - dist / 100})`;
+                        ctx.lineWidth = 0.4;
                         ctx.beginPath();
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
