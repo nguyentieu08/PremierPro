@@ -9,52 +9,40 @@
         :root {
             --bg: #000000;
             --primary: #8ab4f8;
-            --user-bg: #2a2b2e;
+            --user-bubble: #2b2d31;
             --text: #ffffff;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html {
-            margin: 0; padding: 0;
-            background: var(--bg);
-            color: var(--text);
+            margin: 0; padding: 0; background: var(--bg); color: var(--text);
             font-family: -apple-system, system-ui, sans-serif;
-            height: 100%; width: 100%;
-            display: flex; flex-direction: column;
-            overflow: hidden;
-            position: fixed;
+            height: 100vh; width: 100%; display: flex; flex-direction: column;
+            overflow: hidden; position: fixed;
         }
         header {
             padding: env(safe-area-inset-top) 15px 15px 15px;
-            text-align: center;
-            border-bottom: 1px solid #333;
-            color: var(--primary);
-            font-weight: bold;
-            background: #000;
+            text-align: center; border-bottom: 1px solid #333;
+            color: var(--primary); font-weight: bold; background: #000;
         }
-        #chat-window {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        #chat-flow {
+            flex: 1; overflow-y: auto; padding: 20px 15px;
+            display: flex; flex-direction: column; gap: 20px;
             -webkit-overflow-scrolling: touch;
         }
-        .msg { max-width: 85%; display: flex; flex-direction: column; }
+        .msg { max-width: 85%; display: flex; flex-direction: column; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
         .ai { align-self: flex-start; }
         .user { align-self: flex-end; }
         .label { font-size: 10px; margin-bottom: 4px; opacity: 0.7; font-weight: bold; text-transform: uppercase; }
         .ai .label { color: var(--primary); }
         .user .label { text-align: right; color: #888; }
         .bubble { font-size: 16px; line-height: 1.6; word-wrap: break-word; }
-        .user .bubble { background: var(--user-bg); padding: 10px 15px; border-radius: 18px 18px 2px 18px; }
+        .user .bubble { background: var(--user-bubble); padding: 10px 15px; border-radius: 18px 18px 2px 18px; }
         .ai .bubble { padding: 5px 0; }
         .input-box {
             padding: 10px 15px calc(env(safe-area-inset-bottom) + 15px) 15px;
-            background: #000;
-            border-top: 1px solid #333;
-            display: flex; gap: 10px;
-            align-items: center;
+            background: #000; border-top: 1px solid #333;
+            display: flex; gap: 10px; align-items: center;
         }
         input {
             flex: 1; background: #1c1c1e; border: 1px solid #444;
@@ -62,9 +50,8 @@
             font-size: 16px; outline: none;
         }
         button {
-            background: var(--primary); border: none;
-            width: 44px; height: 44px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            background: var(--primary); border: none; width: 44px; height: 44px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
         .loading { font-size: 14px; color: #666; font-style: italic; }
@@ -76,15 +63,15 @@
 
 <header>Nguyễn Tiêu AI</header>
 
-<div id="chat-window">
+<div id="chat-flow">
     <div class="msg ai">
         <div class="label">Nguyễn Tiêu AI</div>
-        <div class="bubble">Tôi đã cấu hình lại Model để tương thích 100% với Key của bạn. Hãy gửi thử lại nhé.</div>
+        <div class="bubble">Hệ thống đã được thiết lập chế độ tự sửa lỗi. Hãy gửi tin nhắn để tôi kiểm tra kết nối.</div>
     </div>
 </div>
 
 <div class="input-box">
-    <input type="text" id="text-input" placeholder="Hỏi tôi ngay..." autocomplete="off">
+    <input type="text" id="user-input" placeholder="Nhập câu hỏi tại đây..." autocomplete="off">
     <button id="send-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
     </button>
@@ -92,81 +79,85 @@
 
 <script>
     const API_KEY = "AIzaSyAwRi2PhwJZeUUcc1dXWvg-oKjKeJXxeWI";
-    // Thử dùng danh sách model phổ biến nhất để tránh 404
-    const MODELS = ["gemini-1.5-flash", "gemini-pro", "gemini-1.5-pro"];
     
-    const chatWin = document.getElementById('chat-window');
-    const textIn = document.getElementById('text-input');
+    // Danh sách các cấu hình API có khả năng chạy cao nhất
+    const ENDPOINTS = [
+        { ver: 'v1beta', model: 'gemini-1.5-flash' },
+        { ver: 'v1', model: 'gemini-1.5-flash' },
+        { ver: 'v1beta', model: 'gemini-pro' },
+        { ver: 'v1', model: 'gemini-pro' }
+    ];
+
+    const chatFlow = document.getElementById('chat-flow');
+    const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
 
-    function addChat(role, content) {
+    function addMessage(role, text) {
         const div = document.createElement('div');
         div.className = `msg ${role}`;
         div.innerHTML = `
             <div class="label">${role === 'user' ? 'Bạn' : 'Nguyễn Tiêu AI'}</div>
-            <div class="bubble">${role === 'user' ? content : marked.parse(content)}</div>
+            <div class="bubble">${role === 'user' ? text : marked.parse(text)}</div>
         `;
-        chatWin.appendChild(div);
-        chatWin.scrollTo(0, chatWin.scrollHeight);
-    }
-
-    async function tryRequest(modelName, text) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
-        });
-        return response;
+        chatFlow.appendChild(div);
+        chatFlow.scrollTo(0, chatFlow.scrollHeight);
     }
 
     async function callAI() {
-        const val = textIn.value.trim();
-        if (!val || sendBtn.disabled) return;
+        const prompt = userInput.value.trim();
+        if (!prompt || sendBtn.disabled) return;
 
-        textIn.value = "";
+        userInput.value = "";
         sendBtn.disabled = true;
-        addChat('user', val);
+        addMessage('user', prompt);
 
-        const load = document.createElement('div');
-        load.className = 'msg ai';
-        load.innerHTML = `<div class="label">Nguyễn Tiêu AI</div><div class="bubble loading">Đang suy nghĩ...</div>`;
-        chatWin.appendChild(load);
+        const loader = document.createElement('div');
+        loader.className = 'msg ai';
+        loader.innerHTML = `<div class="label">Nguyễn Tiêu AI</div><div class="bubble loading">Đang kiểm tra kết nối...</div>`;
+        chatFlow.appendChild(loader);
 
-        let success = false;
-        
-        // Vòng lặp thử từng model nếu bị 404
-        for (let model of MODELS) {
+        let finalResponse = null;
+
+        // Thử lần lượt các endpoint cho đến khi thành công
+        for (const config of ENDPOINTS) {
             try {
-                const res = await tryRequest(model, val);
+                const url = `https://generativelanguage.googleapis.com/${config.ver}/models/${config.model}:generateContent?key=${API_KEY}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
                 const data = await res.json();
                 
-                if (res.ok && data.candidates) {
-                    load.remove();
-                    addChat('ai', data.candidates[0].content.parts[0].text);
-                    success = true;
-                    break;
+                if (res.ok && data.candidates && data.candidates[0].content.parts[0].text) {
+                    finalResponse = data.candidates[0].content.parts[0].text;
+                    break; // Thoát vòng lặp nếu thành công
+                } else {
+                    console.warn(`Thử cấu hình ${config.ver}/${config.model} thất bại:`, data.error?.message);
                 }
             } catch (e) {
-                console.log(`Model ${model} thất bại, thử tiếp...`);
+                console.error("Lỗi mạng:", e);
             }
         }
 
-        if (!success) {
-            load.remove();
-            addChat('ai', "Rất xin lỗi, API Key của bạn không hỗ trợ các model hiện tại hoặc đã hết hạn dùng thử.");
+        loader.remove();
+        if (finalResponse) {
+            addMessage('ai', finalResponse);
+        } else {
+            addMessage('ai', "⚠️ **Lỗi:** Tất cả các phương thức kết nối đều thất bại. Vui lòng kiểm tra lại trạng thái API Key tại Google AI Studio hoặc thử lại sau.");
         }
         
         sendBtn.disabled = false;
     }
 
     sendBtn.onclick = callAI;
-    textIn.onkeydown = (e) => { if (e.key === 'Enter') { callAI(); textIn.blur(); } };
+    userInput.onkeydown = (e) => { if (e.key === 'Enter') { callAI(); userInput.blur(); } };
 
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
             document.body.style.height = window.visualViewport.height + 'px';
-            chatWin.scrollTo(0, chatWin.scrollHeight);
+            chatFlow.scrollTo(0, chatFlow.scrollHeight);
         });
     }
 </script>
