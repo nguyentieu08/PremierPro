@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DYNAMIC_NEON_FLOW</title>
+    <title>ULTRADYNAMIC_AURORA_PANEL</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
 
@@ -17,88 +17,96 @@
             position: relative;
         }
 
-        /* --- 1. HIỆU ỨNG NỀN CỰC QUANG ĐỘNG --- */
-        .aurora-bg {
+        /* --- 1. HỆ THỐNG NỀN ĐỘNG (MESH GRADIENT ENGINE) --- */
+        .background-engine {
             position: absolute; width: 100%; height: 100%;
-            background: 
-                radial-gradient(circle at 10% 10%, #1e1b4b 0%, transparent 50%),
-                radial-gradient(circle at 90% 90%, #312e81 0%, transparent 50%),
-                radial-gradient(circle at 50% 10%, #581c87 0%, transparent 50%),
-                radial-gradient(circle at 10% 90%, #1e3a8a 0%, transparent 50%);
-            filter: blur(100px);
-            z-index: 0;
-            animation: backgroundShift 15s ease infinite alternate;
+            z-index: 0; filter: blur(80px); /* Làm nhòe các khối màu để tạo sự hòa quyện */
         }
 
-        @keyframes backgroundShift {
-            0% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(5deg); }
-            100% { transform: scale(1) rotate(-5deg); }
+        .color-blob {
+            position: absolute; border-radius: 50%;
+            opacity: 0.6; animation: moveAround 20s infinite alternate;
         }
 
-        /* --- 2. HIỆU ỨNG VIỀN CHẠY (NEON RUNNING) --- */
-        .neon-card-border {
+        .blob-1 { width: 600px; height: 600px; background: #00f2fe; top: -10%; left: -10%; animation-duration: 15s; }
+        .blob-2 { width: 500px; height: 500px; background: #7028e4; bottom: -10%; right: -10%; animation-duration: 18s; }
+        .blob-3 { width: 400px; height: 400px; background: #f093fb; top: 40%; left: 30%; animation-duration: 25s; }
+        .blob-4 { width: 550px; height: 550px; background: #4facfe; bottom: 20%; left: 10%; animation-duration: 22s; }
+
+        @keyframes moveAround {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, 200px) scale(1.2); }
+            66% { transform: translate(-150px, 50px) scale(0.8); }
+            100% { transform: translate(50px, -100px) scale(1.1); }
+        }
+
+        /* --- 2. VIỀN CHẠY NEON (CONIC ROTATION) --- */
+        .neon-border-box {
             position: relative;
             width: 420px;
-            padding: 4px; /* Độ dày của viền chạy */
-            border-radius: 40px;
+            padding: 3px; /* Độ dày viền */
+            border-radius: 45px;
             overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
             z-index: 10;
         }
 
-        /* Tạo dải màu xoay phía sau để làm viền */
-        .neon-card-border::before {
+        .neon-border-box::before {
             content: '';
             position: absolute;
             width: 200%; height: 200%;
+            top: -50%; left: -50%;
+            /* Dải màu Neon để chạy viền */
             background: conic-gradient(
-                transparent, transparent, transparent, 
-                #00f2fe, #f093fb, #00f2fe
+                from 0deg,
+                transparent, #00f2fe, #7028e4, #f093fb, transparent 40%
             );
-            animation: rotateBorder 4s linear infinite;
+            animation: rotateNeon 3s linear infinite;
         }
 
-        @keyframes rotateBorder {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes rotateNeon {
+            to { transform: rotate(360deg); }
         }
 
-        /* Nội dung bên trong hộp kính */
-        .glass-content {
+        /* --- 3. NỘI DUNG GLASSMORPHISM --- */
+        .glass-inner {
             position: relative;
             width: 100%;
             padding: 50px 40px;
-            background: rgba(10, 10, 10, 0.8); /* Màu nền đục để nổi bật input */
-            backdrop-filter: blur(30px);
-            border-radius: 36px;
+            background: rgba(15, 15, 15, 0.85); /* Tối để làm nổi bật Neon */
+            backdrop-filter: blur(25px);
+            border-radius: 42px;
             text-align: center;
             z-index: 5;
         }
 
-        .sys-info {
+        .top-row {
             display: flex; justify-content: space-between;
-            font-size: 10px; color: #00f2fe;
-            margin-bottom: 30px; letter-spacing: 2px;
-            font-weight: bold;
+            font-size: 11px; color: #00f2fe; margin-bottom: 40px;
+            font-weight: 800; letter-spacing: 1px;
         }
 
         h1 {
-            color: #fff; font-size: 26px; font-weight: 700;
-            letter-spacing: 5px; margin-bottom: 30px;
-            text-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+            color: #fff; font-size: 30px; font-weight: 800;
+            letter-spacing: 4px; margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .divider {
+            width: 60px; height: 4px; background: #00f2fe;
+            margin: 0 auto 30px; border-radius: 2px;
+            box-shadow: 0 0 15px #00f2fe;
         }
 
         /* INPUTS */
-        .input-box { margin-bottom: 20px; position: relative; }
+        .input-group { margin-bottom: 20px; }
 
         input {
-            width: 100%; padding: 18px;
+            width: 100%; padding: 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            color: #fff; font-size: 14px; outline: none;
-            transition: 0.3s; text-align: center;
+            border-radius: 22px;
+            color: #fff; font-size: 15px; outline: none;
+            text-align: center; transition: 0.3s;
         }
 
         input:focus {
@@ -107,59 +115,66 @@
             box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
         }
 
-        /* BUTTON LOGIN */
-        .btn-glow {
-            width: 100%; padding: 18px; margin-top: 15px;
-            background: linear-gradient(90deg, #00f2fe, #4facfe);
-            color: #000; border: none; border-radius: 20px;
-            font-weight: 700; letter-spacing: 2px;
+        /* BUTTON */
+        .btn-action {
+            width: 100%; padding: 18px; margin-top: 20px;
+            background: #fff; color: #000;
+            border: none; border-radius: 22px;
+            font-weight: 800; font-size: 14px; letter-spacing: 2px;
             cursor: pointer; transition: 0.4s;
+            text-transform: uppercase;
         }
 
-        .btn-glow:hover {
+        .btn-action:hover {
+            background: #00f2fe;
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.5);
-            filter: brightness(1.2);
         }
 
-        /* SOCIAL */
-        .socials {
-            margin-top: 40px; display: flex; justify-content: center; gap: 20px;
+        /* SOCIALS */
+        .social-row {
+            margin-top: 45px; display: flex; justify-content: center; gap: 20px;
         }
-        .socials a {
-            color: rgba(255,255,255,0.4); font-size: 11px;
-            text-decoration: none; transition: 0.3s;
+        .social-row a {
+            color: rgba(255,255,255,0.4); font-size: 10px;
+            text-decoration: none; transition: 0.3s; font-weight: 800;
         }
-        .socials a:hover { color: #00f2fe; }
+        .social-row a:hover { color: #fff; transform: scale(1.1); }
 
     </style>
 </head>
 <body>
 
-    <div class="aurora-bg"></div>
+    <div class="background-engine">
+        <div class="color-blob blob-1"></div>
+        <div class="color-blob blob-2"></div>
+        <div class="color-blob blob-3"></div>
+        <div class="color-blob blob-4"></div>
+    </div>
 
-    <div class="neon-card-border">
-        <div class="glass-content">
-            <div class="sys-info">
-                <span id="bat">BAT: --%</span>
+    <div class="neon-border-box">
+        <div class="glass-inner">
+            <div class="top-row">
+                <span id="bat">BATTERY: 100%</span>
                 <span id="clock">00:00:00</span>
             </div>
 
-            <h1>AUTHENTIC</h1>
+            <h1>SECURE ACCESS</h1>
+            <div class="divider"></div>
 
-            <div class="input-box">
-                <input type="text" placeholder="USER ID" autocomplete="off">
+            <div class="input-group">
+                <input type="text" placeholder="IDENTITY_KEY" autocomplete="off">
             </div>
-            <div class="input-box">
-                <input type="password" placeholder="PASSWORD">
+            <div class="input-group">
+                <input type="password" placeholder="PASS_CODE">
             </div>
 
-            <button class="btn-glow">SIGN IN SYSTEM</button>
+            <button class="btn-action">INITIALIZE</button>
 
-            <div class="socials">
-                <a href="https://www.facebook.com/share/1CTXMD4ctG/" target="_blank">FACEBOOK</a>
-                <a href="https://tiktok.com/@nguyentieulive" target="_blank">TIKTOK</a>
-                <a href="https://zalo.me/0353564018" target="_blank">ZALO</a>
+            <div class="social-row">
+                <a href="https://www.facebook.com/share/1CTXMD4ctG/">FACEBOOK</a>
+                <a href="https://tiktok.com/@nguyentieulive">TIKTOK</a>
+                <a href="https://zalo.me/0353564018">ZALO</a>
             </div>
         </div>
     </div>
@@ -171,11 +186,20 @@
             
             if(navigator.getBattery) {
                 navigator.getBattery().then(b => {
-                    document.getElementById('bat').innerText = `BAT: ${Math.round(b.level * 100)}%`;
+                    document.getElementById('bat').innerText = "BATTERY: " + Math.round(b.level * 100) + "%";
                 });
             }
         }
         setInterval(update, 1000); update();
+
+        // Hiệu ứng click nút mượt mà
+        document.querySelector('.btn-action').onclick = function() {
+            this.innerText = "AUTHENTICATING...";
+            setTimeout(() => {
+                alert("Chào sếp Nguyễn Tiêu, quyền truy cập đã được cấp!");
+                this.innerText = "INITIALIZE";
+            }, 1200);
+        }
     </script>
 </body>
 </html>
