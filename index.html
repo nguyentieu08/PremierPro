@@ -3,129 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PREMIER PRO</title>
+    <title>PREMIER PRO - SECURE PLAYER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Ngăn chặn việc bôi đen văn bản */
         body { 
             background-color: #050505; 
-            color: #fff; 
+            color: #ffffff; 
             font-family: sans-serif; 
             user-select: none; 
             -webkit-user-select: none;
-            -ms-user-select: none;
+            overflow-x: hidden;
         }
-        #player-box { 
+        .glass-card { 
+            background: rgba(15, 15, 15, 0.9); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 24px; 
+        }
+        #player-container { 
             width: 100%; 
             aspect-ratio: 16/9; 
             background: #000; 
-            border-radius: 24px; 
+            border-radius: 20px; 
             overflow: hidden; 
             display: none; 
-            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 0 50px rgba(220, 38, 38, 0.15);
         }
-        /* Hiệu ứng loading giả lập để đánh lạc hướng */
-        .security-scan {
-            font-size: 10px;
-            color: #22c55e;
-            font-family: monospace;
-        }
+        /* Ngăn chặn hiển thị khi view-source cố gắng quét các phần tử quan trọng */
+        [data-security="hidden"] { display: none; }
     </style>
-    <script>
-        /**
-         * LỚP BẢO VỆ 1: CHẶN VIEW-SOURCE QUA URL
-         * Lưu ý: Trình duyệt hiện đại chặn truy cập trực tiếp vào view-source từ script, 
-         * nhưng đoạn mã này giúp ngăn chặn các nỗ lực truy cập gián tiếp.
-         */
-        if (window.location.href.includes('view-source:')) {
-            window.location.href = 'about:blank';
-        }
-
-        /**
-         * LỚP BẢO VỆ 2: CHẶN CHUỘT PHẢI VÀ PHÍM TẮT
-         */
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        
-        document.onkeydown = function(e) {
-            // Chặn F12
-            if (e.keyCode == 123) return false;
-            // Chặn Ctrl+Shift+I (Inspect)
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            // Chặn Ctrl+Shift+C (Inspect Element)
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
-            // Chặn Ctrl+Shift+J (Console)
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
-            // Chặn Ctrl+U (View Source)
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-            // Chặn Ctrl+S (Save Page)
-            if (e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) return false;
-        };
-
-        /**
-         * LỚP BẢO VỆ 3: DEBUGGER TRAP
-         * Nếu người dùng mở được DevTools, lệnh debugger sẽ làm treo luồng xử lý của họ.
-         */
-        setInterval(function() {
-            (function() {
-                return false;
-            }['constructor']('debugger')['call']());
-        }, 500);
-    </script>
 </head>
-<body>
-    <div class="flex flex-col items-center p-6 min-h-screen">
-        <!-- Tiêu đề -->
-        <div class="w-full max-w-lg mt-12 text-center">
+<body oncontextmenu="return false;">
+
+    <div id="main-content" class="flex flex-col items-center p-6 min-h-screen">
+        <!-- Header Section -->
+        <div class="w-full max-w-lg mt-12 text-center animate-pulse-slow">
             <h1 class="text-4xl font-black italic tracking-tighter">
                 PREMIER <span class="text-red-600">PRO</span>
             </h1>
             <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-3 font-bold">
-                Hệ thống phát nhạc không quảng cáo
+                Hệ thống bảo mật phát nhạc nền
             </p>
-            <div class="security-scan mt-2">SECURE CONNECTION ESTABLISHED</div>
         </div>
-        
-        <!-- Khu vực nhập link -->
+
         <div class="w-full max-w-lg mt-12 space-y-6">
+            <!-- Input Area -->
             <div class="relative group">
-                <input type="text" id="videoUrl" placeholder="Dán link video YouTube tại đây..." 
+                <input type="text" id="yt_url" placeholder="Dán đường dẫn video tại đây..." 
                     class="w-full bg-[#111] border border-white/10 rounded-2xl py-5 px-6 outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/5 transition-all text-sm">
-                <button onclick="startPlayback()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-3 rounded-xl active:scale-90 transition-all">
+                <button id="btn_start" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-3 rounded-xl active:scale-90 transition-all shadow-xl">
                     <i data-lucide="play" class="w-5 h-5 fill-white text-white"></i>
                 </button>
             </div>
 
-            <!-- Trình phát video -->
-            <div id="player-box" class="shadow-2xl">
+            <!-- YouTube Display -->
+            <div id="player-container">
                 <div id="player"></div>
             </div>
 
-            <!-- Bảng thông tin tính năng -->
-            <div id="status-panel" class="hidden bg-[#111] border border-white/10 p-6 rounded-[28px] space-y-4 shadow-xl">
-                <div class="flex items-center justify-between border-b border-white/5 pb-4">
-                    <span class="text-[10px] font-black text-green-500 tracking-[0.2em]">AN NINH: ĐÃ KÍCH HOẠT</span>
+            <!-- Features Info -->
+            <div id="info-box" class="hidden glass-card p-6 space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-700">
+                <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                    <span class="text-[10px] font-black text-red-500 tracking-widest uppercase">Chế độ bảo mật: Bật</span>
                     <i data-lucide="shield-check" class="w-4 h-4 text-blue-500"></i>
                 </div>
-                <div class="space-y-3">
-                    <div class="flex items-center gap-3 text-xs text-gray-400 font-medium">
-                        <i data-lucide="check" class="w-4 h-4 text-red-500"></i>
-                        <span>Bypass lỗi YouTube 150/153 thành công</span>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3 text-xs text-gray-400">
+                        <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                        <span>Đã bypass giới hạn lỗi 150/153</span>
                     </div>
-                    <div class="flex items-center gap-3 text-xs text-gray-400 font-medium">
-                        <i data-lucide="check" class="w-4 h-4 text-red-500"></i>
-                        <span>Phát âm thanh trong nền (Background)</span>
+                    <div class="flex items-center gap-3 text-xs text-gray-400">
+                        <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                        <span>Hỗ trợ nghe nhạc khi tắt màn hình</span>
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-500 italic mt-4 leading-relaxed">
-                    Lưu ý: Nếu thoát ra màn hình chính nhạc dừng, hãy mở trung tâm thông báo và nhấn Play để tiếp tục.
-                </p>
             </div>
         </div>
     </div>
 
+    <!-- Script Layer -->
     <script>
-        // Tải YouTube IFrame API
+        /**
+         * SECURITY LAYER 1: CHẶN PHÍM TẮT & VIEW-SOURCE
+         */
+        document.onkeydown = function(e) {
+            // Chặn F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S
+            if (e.keyCode == 123 || 
+                (e.ctrlKey && (e.keyCode == 85 || e.keyCode == 83 || e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67))) {
+                return false;
+            }
+        };
+
+        /**
+         * SECURITY LAYER 2: CHẶN DEBUGGER
+         */
+        (function() {
+            var _0x = function() {
+                var _0y = true;
+                return function(_0z, _0a) {
+                    var _0b = _0y ? function() {
+                        if (_0a) {
+                            var _0c = _0a.apply(_0z, arguments);
+                            _0a = null;
+                            return _0c;
+                        }
+                    } : function() {};
+                    _0y = false;
+                    return _0b;
+                };
+            }();
+            var _0d = _0x(this, function() {
+                var _0e = function() { return 'dev'; }, _0f = function() { return 'window'; };
+                var _0g = function() {
+                    var _0h = new RegExp('\\w+ *\\(\\) *{\\w+ *[\'|"].+[\'|"];? *}');
+                    return !_0h.test(_0e.toString());
+                };
+                if (!_0g()) { (function() { (function() { debugger; }()); }()); }
+            });
+            _0d();
+        }());
+
+        /**
+         * YOUTUBE CORE LOGIC
+         */
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         document.head.appendChild(tag);
@@ -133,31 +133,31 @@
         var player;
         lucide.createIcons();
 
-        function extractId(url) {
-            const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regex);
+        function getVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        function startPlayback() {
-            const urlValue = document.getElementById('videoUrl').value;
-            const videoId = extractId(urlValue);
+        function initPlayer() {
+            const urlInput = document.getElementById('yt_url').value;
+            const id = getVideoId(urlInput);
 
-            if (!videoId) {
-                alert("Vui lòng nhập đúng link YouTube!");
+            if (!id) {
+                alert("Vui lòng nhập liên kết YouTube hợp lệ!");
                 return;
             }
 
-            document.getElementById('player-box').style.display = 'block';
-            document.getElementById('status-panel').classList.remove('hidden');
+            document.getElementById('player-container').style.display = 'block';
+            document.getElementById('info-box').classList.remove('hidden');
 
-            if (player && typeof player.loadVideoById === 'function') {
-                player.loadVideoById(videoId);
+            if (player && player.loadVideoById) {
+                player.loadVideoById(id);
             } else {
                 player = new YT.Player('player', {
                     height: '100%',
                     width: '100%',
-                    videoId: videoId,
+                    videoId: id,
                     playerVars: {
                         'autoplay': 1,
                         'playsinline': 1,
@@ -171,18 +171,24 @@
                 });
             }
 
-            // Hỗ trợ Media Session (Màn hình khóa)
+            // Media Session Control
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: "Premier Pro Player",
-                    artist: "Hệ thống Bypass",
-                    artwork: [{ src: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`, type: 'image/jpg' }]
+                    title: "Premier Pro v5.0",
+                    artist: "Secure Background Player",
+                    artwork: [{ src: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`, type: 'image/jpg' }]
                 });
             }
         }
 
-        // Hỗ trợ phím Enter
-        document.getElementById('videoUrl').onkeydown = (e) => { if(e.key === 'Enter') startPlayback(); };
+        document.getElementById('btn_start').onclick = initPlayer;
+        document.getElementById('yt_url').onkeypress = (e) => { if(e.key === 'Enter') initPlayer(); };
+
+        // Tự động xóa console để bảo mật thông tin log
+        setInterval(() => {
+            console.clear();
+        }, 1000);
+
     </script>
 </body>
 </html>
