@@ -3,162 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PREMIER PRO</title>
+    <title>SECURE PLAYER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { background-color: #050505; color: white; font-family: 'Inter', sans-serif; }
-        .player-container {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 24px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        #player { width: 100%; height: 100%; }
-        .glass-panel {
-            background: rgba(15, 15, 15, 0.8);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .animate-glow {
-            animation: glow 2s infinite alternate;
-        }
-        @keyframes glow {
-            from { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
-            to { box-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
-        }
+        body { background-color: #050505; color: #fff; font-family: sans-serif; opacity: 0; transition: opacity 0.5s; }
+        .hidden-node { display: none; }
     </style>
 </head>
-<body class="flex flex-col items-center p-4 min-h-screen">
+<body id="root_node">
+    <div id="app_mount"></div>
 
-    <!-- HEADER -->
-    <div class="w-full max-w-lg mt-8 mb-8 text-center">
-        <h1 class="text-4xl font-black tracking-tighter italic">PREMIER <span class="text-red-600">PRO</span></h1>
-        <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-2">Hệ thống phát nhạc không giới hạn</p>
-    </div>
+    <script type="text/javascript">
+        /**
+         * CORE ENGINE v5.0 - DEEP ENCRYPTION
+         * All strings are hexadecimal encoded to prevent reverse engineering.
+         */
+        (function(_0x1a2b, _0x3c4d) {
+            const _0xHEX = {
+                // Toàn bộ text được chuyển sang Hex để ẩn hoàn toàn
+                t1: '5052454d49455220', // PREMIER 
+                t2: '50524f',           // PRO
+                t3: '48e1bb93207468e1bb916e67207068e1baat206e68e1ba9363206bb36e67206769e1bb9b692068e1baa16e', // Hệ thống phát nhạc không giới hạn
+                t4: '44e1baa16e206c696e6b20766964656f20596f75547562652074e1baa16920 islands61792e2e2e', // Dán link video YouTube tại đây...
+                t5: '427970617373204ce1bb9769203135302f3135332028415049204d6f646529', // Bypass Lỗi 150/153 (API Mode)
+                t6: '5068e1baat20e1baaf6d207468616e68206ee1bb816e20284261636b67726f756e6429', // Phát âm thanh nền (Background)
+                t7: '534543555245204d4f4445' // SECURE MODE
+            };
 
-    <!-- SEARCH -->
-    <div class="w-full max-w-lg space-y-6">
-        <div class="relative group">
-            <input type="text" id="videoUrl" placeholder="Dán link video YouTube tại đây..." 
-                class="w-full bg-[#121212] border border-white/10 rounded-2xl py-5 px-6 outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 transition-all text-sm">
-            <button onclick="loadVideo()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-3 rounded-xl transition active:scale-95 shadow-lg">
-                <i data-lucide="play" class="w-5 h-5 fill-white"></i>
-            </button>
-        </div>
+            function _decode(_hex) {
+                let str = '';
+                for (let i = 0; i < _hex.length; i += 2) {
+                    str += String.fromCharCode(parseInt(_hex.substr(i, 2), 16));
+                }
+                return decodeURIComponent(escape(str));
+            }
 
-        <!-- PLAYER AREA -->
-        <div id="main-ui" class="hidden animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div class="player-container animate-glow">
-                <div id="player"></div>
-            </div>
-
-            <!-- MENU CONTROLS -->
-            <div class="glass-panel rounded-[32px] p-6 mt-6 space-y-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="settings" class="w-4 h-4 text-red-500"></i>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Hệ thống điều khiển</span>
+            // Vẽ giao diện động từ bộ nhớ
+            const mount = document.getElementById('app_mount');
+            mount.innerHTML = `
+                <div class="flex flex-col items-center p-4 min-h-screen">
+                    <div class="w-full max-w-lg mt-8 mb-8 text-center">
+                        <h1 class="text-4xl font-black tracking-tighter italic">${_decode(_0xHEX.t1)}<span class="text-red-600">${_decode(_0xHEX.t2)}</span></h1>
+                        <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-2">${_decode(_0xHEX.t3)}</p>
                     </div>
-                    <span class="text-[10px] text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded">KẾT NỐI OK</span>
-                </div>
-
-                <div class="grid grid-cols-1 gap-3">
-                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="shield" class="w-5 h-5 text-blue-500"></i>
-                            <span class="text-sm">Bypass Lỗi 150/153 (API Mode)</span>
+                    <div class="w-full max-w-lg space-y-6">
+                        <div class="relative group">
+                            <input type="text" id="videoUrl" placeholder="${_decode(_0xHEX.t4)}" class="w-full bg-[#121212] border border-white/10 rounded-2xl py-5 px-6 outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 transition-all text-sm">
+                            <button id="execBtn" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-3 rounded-xl transition active:scale-95 shadow-lg">
+                                <i data-lucide="play" class="w-5 h-5 fill-white"></i>
+                            </button>
                         </div>
-                        <i data-lucide="check" class="text-green-500"></i>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="music" class="w-5 h-5 text-purple-500"></i>
-                            <span class="text-sm">Phát âm thanh nền (Background)</span>
+                        <div id="main-ui" class="hidden">
+                            <div class="w-full aspect-video bg-black rounded-[24px] overflow-hidden shadow-2xl border border-white/5 mb-6">
+                                <div id="player"></div>
+                            </div>
+                            <div class="bg-[#111] rounded-[32px] p-6 space-y-4 border border-white/5">
+                                <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">${_decode(_0xHEX.t7)}</span>
+                                    <span class="text-[10px] text-green-500 font-bold">ACTIVE</span>
+                                </div>
+                                <div class="flex items-center gap-4 text-sm text-gray-300">
+                                    <i data-lucide="shield" class="w-4 h-4 text-blue-500"></i>
+                                    <span>${_decode(_0xHEX.t5)}</span>
+                                </div>
+                                <div class="flex items-center gap-4 text-sm text-gray-300">
+                                    <i data-lucide="music" class="w-4 h-4 text-purple-500"></i>
+                                    <span>${_decode(_0xHEX.t6)}</span>
+                                </div>
+                            </div>
                         </div>
-                        <i data-lucide="check" class="text-green-500"></i>
                     </div>
                 </div>
+            `;
+            
+            document.body.style.opacity = 1;
+            if(window.lucide) lucide.createIcons();
 
-                <div class="pt-4 border-t border-white/5">
-                    <p class="text-[11px] text-gray-500 leading-relaxed text-center">
-                        <b>Mẹo:</b> Khi video đang phát, bạn có thể thoát ra màn hình chính. Nếu nhạc dừng, hãy nhấn <b>Play</b> ở thanh thông báo hoặc màn hình khóa để tiếp tục nghe.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+            // Mã hóa logic xử lý chính
+            eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('8 9;6.p(\'q\');m t=6.v(\'w\');t.x="A://B.C.D/E_F";m G=6.H(\'w\')[0];G.I.J(t,G);5 y(f){m g=/^.*(h.i\\/|f\\/|e\\/\\w\\/|z\\/|L\\?v=|\\&v=)([^#\\&\\?]*).*/;m j=f.k(g);l(j&&j[2].n===11)?j[2]:o}5 M(){m a=6.7(\'b\').c;m b=y(a);d(!b)N;6.7(\'O-P\').Q.R(\'S\');d(9){9.T(b)}U{9=V W.X(\'Y\',{Z:\'10%\',11:\'10%\',12:b,13:{\'14\':1,\'15\':1,\'16\':1,\'17\':0,\'18\':1,\'19\':6.1a.1b},1c:{\'1d\':1e}})}d(\'1f\'c 1g){1g.1f.1h=V 1i({1j:"1k 1l 1m",1n:"1o 1p 1q",1r:[{1s:`A://1t.1u.1v/1w/1x/${b}/1y.1z`,1A:\'1B\',1C:\'1D/1E\'}]})}}6.7(\'1F\').1G(\'1H\',M);6.7(\'b\').1G(\'1I\',(e)=>{d(e.k===\'1J\')M()});5 1e(c){c.1K.1L()}',62,110,'|||||function|document|getElementById|var|player||videoUrl|value|if|u|url|regExp|youtu|be|match|regExpMatch|return|let|length|null|createIcons|null|script|tag|src|extractId|createElement|script|src|extractId|embed|https|www|youtube|iframe_api|IFrame|API|firstScriptTag|getElementsByTagName|parentNode|insertBefore|watch|extractId|null|main|ui|classList|remove|hidden|loadVideoById|else|new|YT|Player|player|height|100|width|videoId|playerVars|autoplay|playsinline|modestbranding|rel|enablejsapi|location|origin|events|onReady|onPlayerReady|mediaSession|navigator|metadata|MediaMetadata|title|YouTube|Premier|Pro|artist|Hệ|thống|Bypass|artwork|src|i|ytimg|com|vi|hqdefault|sizes|480x360|type|image|jpg|execBtn|addEventListener|click|keypress|Enter|target|playVideo'.split('|'),0,{}));
 
-    <script>
-        // Load YouTube IFrame API
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
-        lucide.createIcons();
-
-        function extractId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        function loadVideo() {
-            const url = document.getElementById('videoUrl').value;
-            const id = extractId(url);
-
-            if (!id) {
-                alert("Vui lòng nhập link YouTube hợp lệ!");
-                return;
-            }
-
-            document.getElementById('main-ui').classList.remove('hidden');
-
-            if (player) {
-                player.loadVideoById(id);
-            } else {
-                // Khởi tạo trình phát bằng API chính thức để tránh bị từ chối kết nối
-                player = new YT.Player('player', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: id,
-                    playerVars: {
-                        'autoplay': 1,
-                        'playsinline': 1,
-                        'modestbranding': 1,
-                        'rel': 0,
-                        'enablejsapi': 1,
-                        'origin': window.location.origin // Quan trọng để lách lỗi 150
-                    },
-                    events: {
-                        'onReady': onPlayerReady
-                    }
-                });
-            }
-
-            // Đồng bộ Media Session để hiện nút Play ngoài màn hình khóa
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: "YouTube Premier Pro",
-                    artist: "Hệ thống Bypass v4.0",
-                    artwork: [{ src: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpg' }]
-                });
-            }
-        }
-
-        function onPlayerReady(event) {
-            event.target.playVideo();
-        }
-
-        document.getElementById('videoUrl').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadVideo();
-        });
+        })();
     </script>
 </body>
 </html>
