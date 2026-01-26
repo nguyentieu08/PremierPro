@@ -2,193 +2,56 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PREMIER PRO - SECURE PLAYER</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>SECURE SYSTEM</title>
     <style>
-        body { 
-            background-color: #050505; 
-            color: #ffffff; 
-            font-family: sans-serif; 
-            user-select: none; 
-            -webkit-user-select: none;
-            overflow-x: hidden;
-        }
-        .glass-card { 
-            background: rgba(15, 15, 15, 0.9); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 24px; 
-        }
-        #player-container { 
-            width: 100%; 
-            aspect-ratio: 16/9; 
-            background: #000; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            display: none; 
-            box-shadow: 0 0 50px rgba(220, 38, 38, 0.15);
-        }
-        /* Ngăn chặn hiển thị khi view-source cố gắng quét các phần tử quan trọng */
-        [data-security="hidden"] { display: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #050505; }
+        iframe { border: none; width: 100%; height: 100%; }
     </style>
 </head>
-<body oncontextmenu="return false;">
-
-    <div id="main-content" class="flex flex-col items-center p-6 min-h-screen">
-        <!-- Header Section -->
-        <div class="w-full max-w-lg mt-12 text-center animate-pulse-slow">
-            <h1 class="text-4xl font-black italic tracking-tighter">
-                PREMIER <span class="text-red-600">PRO</span>
-            </h1>
-            <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-3 font-bold">
-                Hệ thống bảo mật phát nhạc nền
-            </p>
-        </div>
-
-        <div class="w-full max-w-lg mt-12 space-y-6">
-            <!-- Input Area -->
-            <div class="relative group">
-                <input type="text" id="yt_url" placeholder="Dán đường dẫn video tại đây..." 
-                    class="w-full bg-[#111] border border-white/10 rounded-2xl py-5 px-6 outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/5 transition-all text-sm">
-                <button id="btn_start" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-3 rounded-xl active:scale-90 transition-all shadow-xl">
-                    <i data-lucide="play" class="w-5 h-5 fill-white text-white"></i>
-                </button>
-            </div>
-
-            <!-- YouTube Display -->
-            <div id="player-container">
-                <div id="player"></div>
-            </div>
-
-            <!-- Features Info -->
-            <div id="info-box" class="hidden glass-card p-6 space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-700">
-                <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                    <span class="text-[10px] font-black text-red-500 tracking-widest uppercase">Chế độ bảo mật: Bật</span>
-                    <i data-lucide="shield-check" class="w-4 h-4 text-blue-500"></i>
-                </div>
-                <div class="space-y-2">
-                    <div class="flex items-center gap-3 text-xs text-gray-400">
-                        <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
-                        <span>Đã bypass giới hạn lỗi 150/153</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-xs text-gray-400">
-                        <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
-                        <span>Hỗ trợ nghe nhạc khi tắt màn hình</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body>
+    <div id="loader" style="color:white; font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh;">
+        Authenticating Secure Session...
     </div>
-
-    <!-- Script Layer -->
     <script>
         /**
-         * SECURITY LAYER 1: CHẶN PHÍM TẮT & VIEW-SOURCE
+         * TOÀN BỘ CODE CỦA BẠN ĐÃ ĐƯỢC CHUYỂN THÀNH BASE64
+         * Khi xem view-source, người dùng chỉ thấy chuỗi này.
          */
-        document.onkeydown = function(e) {
-            // Chặn F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S
-            if (e.keyCode == 123 || 
-                (e.ctrlKey && (e.keyCode == 85 || e.keyCode == 83 || e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67))) {
-                return false;
-            }
-        };
+        const _v = `PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9InZpIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCwgbWF4aW11bS1zY2FsZT0xLjAsIHVzZXItc2NhbGFibGU9bm8iPgogICAgPHNjcmlwdCBzcmM9Imh0dHBzOi8vY2RuLnRhaWx3aW5kY3NzLmNvbSI+PC9zY3JpcHQ+CiAgICA8c2NyaXB0IHNyYz0iaHR0cHM6Ly91bnBrZy5jb20vbHVjaWRlQGxhdGVzdCI+PC9zY3JpcHQ+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7IGJhY2tncm91bmQtY29sb3I6ICMwNTA1MDU7IGNvbG9yOiAjZmZmOyBmb250LWZhbWlseTogc2Fucy1zZXJpZjsgdXNlci1zZWxlY3Q6IG5vbmU7IH0KICAgICAgICAjcGxheWVyLWJveCB7IHdpZHRoOiAxMDAlOyBhc3BlY3QtcmF0aW86IDE2Lzk7IGJhY2tncm91bmQ6ICMwMDA7IGJvcmRlci1yYWRpdXM6IDI0cHg7IG92ZXJmbG93OiBoaWRkZW47IGRpc3BsYXk6IG5vbmU7IGJvcmRlcjogMXB4IHNvbGlkIHJnYmEoMjU1LDI1NSwyNTUsMC4xKTsgfQogICAgPC9zdHlsZT4KPC9oZWFkPgo8Ym9keSBvbmNvbnRleHRtZW51PSJyZXR1cm4gZmFsc2UiIG9ua2V5ZG93bj0iaWYoZXZlbnQuY3RybEtleSB8fCBldmVudC5rZXlDb2RlPT0xMjMpcmV0dXJuIGZhbHNlIj4KICAgIDxkaXYgY2xhc3M9ImZsZXggZmxleC1jb2wgaXRlbXMtY2VudGVyIHAtNiBtaW4taC1zY3JlZW4iPgogICAgICAgIDxkaXYgY2xhc3M9InctZnVsbCBtYXgtdy1sZyBtdC0xMiB0ZXh0LWNlbnRlciI+CiAgICAgICAgICAgIDxoMSBjbGFzcz0idGV4dC00eCBmb250LWJsYWNrIGl0YWxpYyB0cmFja2luZy10aWdodGVyIj5QUkVNSUVSIDxzcGFuIGNsYXNzPSJ0ZXh0LXJlZC02MDAiPlBSTzwvc3Bhbj48L2gxPgogICAgICAgICAgICA8cCBjbGFzcz0idGV4dC1ncmF5LTUwMCB0ZXh0WzEwcHhdIHVwcGVyY2FzZSB0cmFja2luZy1bMC4zZW1dIG10LTMgZm9udC1ib2xkIj5I4buHIHRo4buRbmcgcGjDoXQgbmjhuqFjIG7hu4FuIGLhuqNvIG3huq10PC9wPgogICAgICAgIDwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9InctZnVsbCBtYXgtdy1sZyBtdC0xMiBzcGFjZS15LTYiPgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJyZWxhdGl2ZSI+CiAgICAgICAgICAgICAgICA8aW5wdXQgdHlwZT0idGV4dCIgaWQ9InVybCIgcGxhY2Vob2xkZXI9IkTDoW4gbGluayB2aWRlbyBZb3VUdWJlIHThuqFpIMSRw6J5Li4uIiBjbGFzcz0idy1mdWxsIGJnLVsjMTExXSBib3JkZXIgYm9yZGVyLXdoaXRlLzEwIHJvdW5kZWQtMnhsIHB5LTUgcHgtNiBvdXRsaW5lLW5vbmUgZm9jdXM6Ym9yZGVyLXJlZC02MDAgdHJhbnNpdGlvbi1hbGwgdGV4dC1zbSI+CiAgICAgICAgICAgICAgICA8YnV0dG9uIGlkPSJnb28iIGNsYXNzPSJhYnNvbHV0ZSByaWdodC0zIHRvcC0xLzIgLXRyYW5zbGF0ZS15LTEvMiBiZy1yZWQtNjAwIHAtMyByb3VuZGVkLXhsIj48aSBkYXRhLWx1Y2lkZT0icGxheSIgY2xhc3M9InctNSBoLTUgZmlsbC13aGl0ZSI+PC9pPjwvYnV0dG9uPgogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgPGRpdiBpZD0icGxheWVyLWJveCI+PGRpdiBpZD0icGxheWVyIj48L2Rpdj48L2Rpdj4KICAgICAgICAgICAgPGRpdiBpZD0iaW5mbyIgY2xhc3M9ImhpZGRlbiBiZy1bIzExMV0gcC02IHJvdW5kZWQtWzI4cHhdIGJvcmRlciBib3JkZXItd2hpdGUvNSBzcGFjZS15LTMiPgogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0iZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTMgdGV4dC14cyB0ZXh0LWdyYXktNDAwIj48aSBkYXRhLWx1Y2lkZT0ic2hpZWxkIiBjbGFzcz0idy00IGgtNCB0ZXh0LXJlZC01MDAiPjwvaT5I4buHIHRo4buRbmcgZGFuZyDEkeG7s2MgYuG6o28gduG7hyBib290PC9kaXY+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgPC9kaXY+CiAgICA8c2NyaXB0PgogICAgICAgIGx1Y2lkZS5jcmVhdGVJY29ucygpOwogICAgICAgIHZhciB0YWcgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCdzY3JpcHQnKTsgdGFnLnNyYyA9ICJodHRwczovL3d3dy55b3V0dWJlLmNvbS9pZnJhbWVfYXBpIjsgZG9jdW1lbnQuaGVhZC5hcHBlbmRDaGlsZCh0YWcpOwogICAgICAgIHZhciBwOyBmdW5jdGlvbiBwbGF5KCl7CiAgICAgICAgICAgIHZhciB1ID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3VybCcpLnZhbHVlOwogICAgICAgICAgICB2YXIgaWQgPSB1Lm1hdGNoKC8oPzp5b3V0dVwuYmUvfHlvdXR1YmUuY29tKD86L2VtYmVkL3wvdi98L3dhdGNoX3Y9fC91c2VyL1xTK3wveXRzY3JlZW5pbmdyb29tX3Y9fC9zYW5kYXlcc3Y9KSkoW1x3LV17MTF9KS8pPy5bMV07CiAgICAgICAgICAgIGlmKCFpZCkgcmV0dXJuOwogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncGxheWVyLWJveCcpLnN0eWxlLmRpc3BsYXk9J2Jsb2NrJzsKICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2luZm8nKS5jbGFzc0xpc3QucmVtb3ZlKCdoaWRkZW4nKTsKICAgICAgICAgICAgaWYocClwLmxvYWRWaWRlb0J5SWQoaWQpOyBlbHNlIHA9bmV3IFlULlBsYXllcigncGxheWVyJyx7aGVpZ2h0OicxMDAlJyx3aWR0aDonMTAwJScsdmlkZW9JZDppZCxwbGF5ZXJWYXJzOnsnYXV0b3BsYXknOjEsJ3BsYXlzaW5saW5lJzoxfSxldmVudHM6eydvblJlYWR5JzplPT5lLnRhcmdldC5wbGF5VmlkZW8oKX19KTsKICAgICAgICB9CiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2dvJykub25jbGljayA9IHBsYXk7CiAgICAgICAgc2V0SW50ZXJ2YWwoKCk9PntkZWJ1Z2dlcn0sMTAwMCk7CiAgICA8L3NjcmlwdD4KPC9ib2R5Pgo8L2h0bWw+`;
 
-        /**
-         * SECURITY LAYER 2: CHẶN DEBUGGER
-         */
-        (function() {
-            var _0x = function() {
-                var _0y = true;
-                return function(_0z, _0a) {
-                    var _0b = _0y ? function() {
-                        if (_0a) {
-                            var _0c = _0a.apply(_0z, arguments);
-                            _0a = null;
-                            return _0c;
-                        }
-                    } : function() {};
-                    _0y = false;
-                    return _0b;
-                };
-            }();
-            var _0d = _0x(this, function() {
-                var _0e = function() { return 'dev'; }, _0f = function() { return 'window'; };
-                var _0g = function() {
-                    var _0h = new RegExp('\\w+ *\\(\\) *{\\w+ *[\'|"].+[\'|"];? *}');
-                    return !_0h.test(_0e.toString());
-                };
-                if (!_0g()) { (function() { (function() { debugger; }()); }()); }
-            });
-            _0d();
-        }());
+        // Hàm giải mã và thực thi trong môi trường cô lập
+        function loadSecureApp() {
+            try {
+                const decoded = atob(_v);
+                const blob = new Blob([decoded], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                const frame = document.createElement('iframe');
+                frame.src = url;
+                frame.id = "secure_frame";
+                
+                document.getElementById('loader').remove();
+                document.body.appendChild(frame);
 
-        /**
-         * YOUTUBE CORE LOGIC
-         */
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
-
-        var player;
-        lucide.createIcons();
-
-        function getVideoId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        function initPlayer() {
-            const urlInput = document.getElementById('yt_url').value;
-            const id = getVideoId(urlInput);
-
-            if (!id) {
-                alert("Vui lòng nhập liên kết YouTube hợp lệ!");
-                return;
-            }
-
-            document.getElementById('player-container').style.display = 'block';
-            document.getElementById('info-box').classList.remove('hidden');
-
-            if (player && player.loadVideoById) {
-                player.loadVideoById(id);
-            } else {
-                player = new YT.Player('player', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: id,
-                    playerVars: {
-                        'autoplay': 1,
-                        'playsinline': 1,
-                        'modestbranding': 1,
-                        'rel': 0,
-                        'origin': window.location.origin
-                    },
-                    events: {
-                        'onReady': (event) => event.target.playVideo()
-                    }
-                });
-            }
-
-            // Media Session Control
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: "Premier Pro v5.0",
-                    artist: "Secure Background Player",
-                    artwork: [{ src: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`, type: 'image/jpg' }]
-                });
+                // Sau khi nạp xong, hủy URL để không thể truy cập lại
+                frame.onload = () => URL.revokeObjectURL(url);
+            } catch (e) {
+                document.getElementById('loader').innerText = "Security Initialization Failed.";
             }
         }
 
-        document.getElementById('btn_start').onclick = initPlayer;
-        document.getElementById('yt_url').onkeypress = (e) => { if(e.key === 'Enter') initPlayer(); };
+        // Chặn phím tắt xem nguồn ở trang cha
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i') || e.key === 'F12') {
+                e.preventDefault();
+            }
+        });
 
-        // Tự động xóa console để bảo mật thông tin log
-        setInterval(() => {
-            console.clear();
-        }, 1000);
+        // Tự động kích hoạt
+        window.onload = loadSecureApp;
 
+        // Xóa dấu vết console
+        setInterval(() => console.clear(), 500);
     </script>
 </body>
 </html>
