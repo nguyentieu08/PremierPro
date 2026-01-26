@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PREMIER PRO</title>
+    <title>PREMIER PRO MOBILE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -60,7 +60,6 @@
 
             <div id="main-ui" class="hidden animate-in fade-in duration-500">
                 <div id="player-box" class="mb-6 shadow-2xl">
-                    <!-- Quan trọng: Sử dụng thẻ video bọc ngoài iframe nếu cần xử lý PiP sâu trên iOS -->
                     <div id="player"></div>
                 </div>
 
@@ -79,7 +78,7 @@
                     </div>
                     <div class="flex items-center gap-4 text-sm text-gray-300">
                         <i data-lucide="lock" class="w-4 h-4 text-blue-500"></i>
-                        <span>Duy trì âm thanh màn hình khóa</span>
+                        <span>Đã đồng bộ Media Control (Thanh thông báo)</span>
                     </div>
                 </div>
             </div>
@@ -120,7 +119,6 @@
         </div>
     </div>
 
-    <!-- Hidden audio element: Phải được kích hoạt bằng hành động người dùng -->
     <audio id="silent-no-sleep" loop playsinline>
         <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
@@ -155,22 +153,15 @@
             var urlInput = document.getElementById('videoUrl');
             var videoId = extractVideoId(urlInput.value);
 
-            if (!videoId) {
-                alert("Vui lòng nhập link YouTube hợp lệ!");
-                return;
-            }
+            if (!videoId) return;
 
-            // Kích hoạt âm thanh im lặng NGAY LẬP TỨC khi click nút
-            silentPlayer.play().catch(e => console.log("Audio kickstart needed"));
+            silentPlayer.play().catch(() => {});
 
             document.getElementById('main-ui').classList.remove('hidden');
             document.getElementById('player-box').style.display = 'block';
 
             if (player && typeof player.loadVideoById === 'function') {
-                player.loadVideoById({
-                    videoId: videoId,
-                    suggestedQuality: 'hd720'
-                });
+                player.loadVideoById({ videoId: videoId });
             } else {
                 player = new YT.Player('player', {
                     height: '100%',
@@ -178,14 +169,12 @@
                     videoId: videoId,
                     playerVars: {
                         'autoplay': 1,
-                        'playsinline': 1, // Bắt buộc cho iOS background
-                        'modestbranding': 1,
-                        'rel': 0,
+                        'playsinline': 1,
                         'enablejsapi': 1,
                         'widget_referrer': window.location.origin
                     },
                     events: {
-                        'onReady': onPlayerReady,
+                        'onReady': (e) => { e.target.playVideo(); requestWakeLock(); },
                         'onStateChange': onPlayerStateChange
                     }
                 });
@@ -193,70 +182,70 @@
             setupMediaSession(videoId);
         }
 
-        function onPlayerReady(event) {
-            event.target.playVideo();
-            requestWakeLock();
-        }
-
         function onPlayerStateChange(event) {
-            // Khi video kết thúc, tự động loop
-            if (event.data === YT.PlayerState.ENDED) {
-                player.playVideo();
-            }
-            // Cập nhật Media Session để trung tâm điều khiển hoạt động chính xác
-            if (event.data === YT.PlayerState.PLAYING) {
-                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-                silentPlayer.play(); // Đảm bảo âm thanh nền vẫn chạy
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+            if (!('mediaSession' in navigator)) return;
+
+            // Đồng bộ trạng thái Iframe -> Thanh thông báo
+            switch(event.data) {
+                case YT.PlayerState.PLAYING:
+                    navigator.mediaSession.playbackState = 'playing';
+                    silentPlayer.play();
+                    break;
+                case YT.PlayerState.PAUSED:
+                case YT.PlayerState.BUFFERING:
+                    navigator.mediaSession.playbackState = 'paused';
+                    break;
+                case YT.PlayerState.ENDED:
+                    player.playVideo(); // Auto loop 24/7
+                    break;
             }
         }
 
         function setupMediaSession(videoId) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: "Premier Pro 24/7 Edition",
-                    artist: "Admin Nguyễn Tiểu Live",
+                    title: "Premier Pro - Treo Nhạc 24/7",
+                    artist: "Hệ thống Background Stable",
                     artwork: [
-                        { src: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpg' }
+                        { src: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`, sizes: '512x512', type: 'image/jpg' }
                     ]
                 });
 
-                // Các nút điều khiển trên màn hình khóa
-                navigator.mediaSession.setActionHandler('play', () => player.playVideo());
-                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
-                navigator.mediaSession.setActionHandler('seekbackward', () => {
-                    let curr = player.getCurrentTime();
-                    player.seekTo(Math.max(curr - 10, 0));
+                // Xử lý lệnh từ thanh thông báo điều khiển vào App
+                navigator.mediaSession.setActionHandler('play', () => {
+                    if (player) {
+                        player.playVideo();
+                        navigator.mediaSession.playbackState = 'playing';
+                    }
                 });
+
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    if (player) {
+                        player.pauseVideo();
+                        navigator.mediaSession.playbackState = 'paused';
+                    }
+                });
+
+                navigator.mediaSession.setActionHandler('seekbackward', () => {
+                    player.seekTo(player.getCurrentTime() - 10);
+                });
+
                 navigator.mediaSession.setActionHandler('seekforward', () => {
-                    let curr = player.getCurrentTime();
-                    player.seekTo(curr + 10);
+                    player.seekTo(player.getCurrentTime() + 10);
                 });
             }
         }
 
-        // Fix lỗi iOS tự động pause khi ẩn tab
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 requestWakeLock();
-                // Nếu quay lại mà thấy đang pause, tự phát tiếp
-                if(player && player.getPlayerState && player.getPlayerState() !== 1) {
-                    player.playVideo();
+                // Đồng bộ lại nếu thanh thông báo đã thay đổi trạng thái trong khi tab ẩn
+                if (player && player.getPlayerState) {
+                    const state = player.getPlayerState();
+                    navigator.mediaSession.playbackState = (state === 1) ? 'playing' : 'paused';
                 }
-            } else {
-                // Khi ẩn tab, ra lệnh cho silent player chạy mạnh hơn
-                silentPlayer.play();
             }
         });
-
-        // Tự động kiểm tra trạng thái mỗi 10 giây (Android Doze Fix)
-        setInterval(() => {
-            if (player && player.getPlayerState && player.getPlayerState() === 2) {
-                // Nếu bị hệ thống force pause, cố gắng play lại
-                player.playVideo();
-            }
-        }, 10000);
 
         document.getElementById('videoUrl').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handlePlay();
