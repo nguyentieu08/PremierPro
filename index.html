@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PREMIER PRO 24/7</title>
+    <title>PREMIER PRO MOBILE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -12,7 +12,6 @@
             color: #fff; 
             font-family: sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
         }
         #player-box { 
             width: 100%; 
@@ -40,6 +39,7 @@
 </head>
 <body>
     <div class="flex flex-col items-center p-4 min-h-screen pb-20">
+        <!-- Header Section -->
         <div class="w-full max-w-lg mt-8 mb-8 text-center">
             <h1 class="text-4xl font-black tracking-tighter italic text-white">
                 PREMIER <span class="text-red-600">PRO</span>
@@ -60,6 +60,7 @@
 
             <div id="main-ui" class="hidden animate-in fade-in duration-500">
                 <div id="player-box" class="mb-6 shadow-2xl">
+                    <!-- Quan trọng: Sử dụng thẻ video bọc ngoài iframe nếu cần xử lý PiP sâu trên iOS -->
                     <div id="player"></div>
                 </div>
 
@@ -70,15 +71,15 @@
                     </div>
                     <div class="flex items-center gap-4 text-sm text-gray-300">
                         <i data-lucide="infinity" class="w-4 h-4 text-red-500"></i>
-                        <span>Web Online 24/7</span>
+                        <span>Ngăn chặn tự động giải phóng bộ nhớ</span>
                     </div>
                     <div class="flex items-center gap-4 text-sm text-gray-300">
                         <i data-lucide="zap" class="w-4 h-4 text-yellow-500"></i>
-                        <span>Bypass Adblock & Lỗi 150/153 (API)</span>
+                        <span>Hỗ trợ iOS Background & Android Doze</span>
                     </div>
                     <div class="flex items-center gap-4 text-sm text-gray-300">
                         <i data-lucide="lock" class="w-4 h-4 text-blue-500"></i>
-                        <span>Chạy Nền - Khóa Màn Hình</span>
+                        <span>Duy trì âm thanh màn hình khóa</span>
                     </div>
                 </div>
             </div>
@@ -119,7 +120,8 @@
         </div>
     </div>
 
-    <audio id="silent-no-sleep" loop>
+    <!-- Hidden audio element: Phải được kích hoạt bằng hành động người dùng -->
+    <audio id="silent-no-sleep" loop playsinline>
         <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
 
@@ -136,16 +138,11 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
+            if ('wakeLock' in navigator) {
+                try {
                     wakeLock = await navigator.wakeLock.request('screen');
-                }
-            } catch (err) {}
-        }
-
-        function keepAlive() {
-            silentPlayer.play().catch(() => {
-            });
+                } catch (err) {}
+            }
         }
 
         function extractVideoId(url) {
@@ -163,10 +160,11 @@
                 return;
             }
 
+            // Kích hoạt âm thanh im lặng NGAY LẬP TỨC khi click nút
+            silentPlayer.play().catch(e => console.log("Audio kickstart needed"));
+
             document.getElementById('main-ui').classList.remove('hidden');
             document.getElementById('player-box').style.display = 'block';
-
-            keepAlive(); 
 
             if (player && typeof player.loadVideoById === 'function') {
                 player.loadVideoById({
@@ -180,79 +178,89 @@
                     videoId: videoId,
                     playerVars: {
                         'autoplay': 1,
-                        'playsinline': 1,
+                        'playsinline': 1, // Bắt buộc cho iOS background
                         'modestbranding': 1,
                         'rel': 0,
                         'enablejsapi': 1,
-                        'origin': window.location.origin,
-                        'widget_referrer': window.location.origin,
-                        'iv_load_policy': 3
+                        'widget_referrer': window.location.origin
                     },
                     events: {
-                        'onReady': (e) => { 
-                            e.target.playVideo(); 
-                            requestWakeLock();
-                        },
-                        'onStateChange': onPlayerStateChange,
-                        'onError': handlePlayerError
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
                     }
                 });
             }
             setupMediaSession(videoId);
         }
 
-        function handlePlayerError(e) {
-            setTimeout(() => {
-                if(player && player.loadVideoById) {
-                    player.playVideo();
-                }
-            }, 3000);
+        function onPlayerReady(event) {
+            event.target.playVideo();
+            requestWakeLock();
         }
 
         function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                navigator.mediaSession.playbackState = 'playing';
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                navigator.mediaSession.playbackState = 'paused';
-            }
+            // Khi video kết thúc, tự động loop
             if (event.data === YT.PlayerState.ENDED) {
                 player.playVideo();
+            }
+            // Cập nhật Media Session để trung tâm điều khiển hoạt động chính xác
+            if (event.data === YT.PlayerState.PLAYING) {
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+                silentPlayer.play(); // Đảm bảo âm thanh nền vẫn chạy
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
             }
         }
 
         function setupMediaSession(videoId) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: "Premier Pro - Hệ thống 24/7",
-                    artist: "Hệ thống Duy trì Trực tuyến",
+                    title: "Premier Pro 24/7 Edition",
+                    artist: "Admin Nguyễn Tiểu Live",
                     artwork: [
                         { src: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpg' }
                     ]
                 });
 
+                // Các nút điều khiển trên màn hình khóa
                 navigator.mediaSession.setActionHandler('play', () => player.playVideo());
                 navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
+                navigator.mediaSession.setActionHandler('seekbackward', () => {
+                    let curr = player.getCurrentTime();
+                    player.seekTo(Math.max(curr - 10, 0));
+                });
+                navigator.mediaSession.setActionHandler('seekforward', () => {
+                    let curr = player.getCurrentTime();
+                    player.seekTo(curr + 10);
+                });
             }
         }
 
+        // Fix lỗi iOS tự động pause khi ẩn tab
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 requestWakeLock();
-                if(player && player.getPlayerState() === 2) { 
+                // Nếu quay lại mà thấy đang pause, tự phát tiếp
+                if(player && player.getPlayerState && player.getPlayerState() !== 1) {
                     player.playVideo();
                 }
+            } else {
+                // Khi ẩn tab, ra lệnh cho silent player chạy mạnh hơn
+                silentPlayer.play();
             }
         });
+
+        // Tự động kiểm tra trạng thái mỗi 10 giây (Android Doze Fix)
+        setInterval(() => {
+            if (player && player.getPlayerState && player.getPlayerState() === 2) {
+                // Nếu bị hệ thống force pause, cố gắng play lại
+                player.playVideo();
+            }
+        }, 10000);
 
         document.getElementById('videoUrl').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handlePlay();
         });
-
-        setInterval(() => {
-            if (player && player.getPlayerState && player.getPlayerState() !== 1 && player.getPlayerState() !== 3) {
-                player.playVideo();
-            }
-        }, 30000);
     </script>
 </body>
 </html>
