@@ -21,7 +21,7 @@
     </style>
 </head>
 <body class="pb-24">
-    <div id="status-247" class="fixed top-0 left-0 w-full bg-red-600/10 border-b border-red-600/20 py-1 flex justify-center items-center gap-2 z-50 opacity-0 transition-opacity">
+    <div id="status-247" class="fixed top-0 left-0 w-full bg-red-600/10 border-b border-red-600/20 py-2 flex justify-center items-center gap-2 z-50 opacity-0 transition-opacity">
         <div class="flex gap-1">
             <div class="wave-bar" style="animation-delay: 0s"></div>
             <div class="wave-bar" style="animation-delay: 0.2s"></div>
@@ -95,7 +95,7 @@
                     <div class="relative w-full h-full rounded-full overflow-hidden border-2 border-white/20">
                         <img src="https://sf-static.upanhlaylink.com/img/image_202601272ebbdb5b82ff7c12177a2edde9723d69.jpg" 
                              alt="Nguyen Tieu Admin" 
-                             class="w-full h-full object-cover shadow-2xl scale-100 transition-transform hover:scale-110 duration-500">
+                             class="w-full h-full object-cover shadow-2xl">
                     </div>
                     <div class="absolute bottom-1 right-2 bg-green-500 w-6 h-6 rounded-full border-4 border-[#121212] z-10"></div>
                 </div>
@@ -132,6 +132,8 @@
         <button onclick="window.location.reload()" class="p-4 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="refresh-cw" class="w-5 h-5 text-gray-400"></i></button>
     </div>
 
+    <!-- Hidden audio element to bridge Media Session if needed -->
+    <audio id="mediaBridge" loop style="display:none;"></audio>
     <video id="noSleepVideo" loop playsinline muted style="display:none;"></video>
 
     <script>
@@ -161,10 +163,40 @@
             } catch (err) {}
         }
 
+        // Setup Media Session for phone notification bar
+        function updateMediaSession(title) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: title || 'Premier Pro Stream',
+                    artist: 'Nguyễn Tiểu Admin',
+                    artwork: [
+                        { src: 'https://sf-static.upanhlaylink.com/img/image_202601272ebbdb5b82ff7c12177a2edde9723d69.jpg', sizes: '512x512', type: 'image/jpg' }
+                    ]
+                });
+
+                // Handlers for notification bar buttons
+                navigator.mediaSession.setActionHandler('play', () => player.playVideo());
+                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
+                navigator.mediaSession.setActionHandler('nexttrack', () => {
+                    // Custom logic for next track can go here
+                    console.log('Next video requested via notification bar');
+                });
+                navigator.mediaSession.setActionHandler('previoustrack', () => {
+                    console.log('Previous video requested via notification bar');
+                });
+            }
+        }
+
         function enableNoSleep() {
             const v = document.getElementById('noSleepVideo');
             v.src = "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAAAAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAAG1kYXQ=";
             v.play().catch(()=>{});
+            
+            // Interaction to enable media session
+            const bridge = document.getElementById('mediaBridge');
+            bridge.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+            bridge.play().catch(()=>{});
+            
             requestWakeLock();
         }
 
@@ -202,16 +234,19 @@
                         'playsinline': 1, 
                         'modestbranding': 1, 
                         'rel': 0,
-                        'origin': window.location.origin 
+                        'origin': window.location.origin,
+                        'loop': 0 // Disabled looping
                     },
                     events: {
-                        'onStateChange': (e) => {
-                            if (e.data === YT.PlayerState.ENDED) {
-                                player.playVideo();
-                            }
+                        'onReady': (e) => {
+                            const data = e.target.getVideoData();
+                            updateMediaSession(data.title);
                         },
-                        'onError': () => {
-                            setTimeout(() => player.playVideo(), 2000);
+                        'onStateChange': (e) => {
+                            if (e.data === YT.PlayerState.PLAYING) {
+                                const data = player.getVideoData();
+                                updateMediaSession(data.title);
+                            }
                         }
                     }
                 });
@@ -234,3 +269,4 @@
     </script>
 </body>
 </html>
+
