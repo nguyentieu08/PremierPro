@@ -7,253 +7,210 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        body { background-color: #050505; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(18, 18, 18, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        #player-box { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 24px; overflow: hidden; display: none; border: 1px solid rgba(255,255,255,0.1); }
-        .wave-bar { width: 3px; height: 15px; background: #dc2626; margin: 0 1px; border-radius: 10px; animation: wave 1s ease-in-out infinite; }
-        @keyframes wave { 0%, 100% { height: 5px; } 50% { height: 20px; } }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        .profile-container { position: relative; width: 128px; height: 128px; }
-        .profile-glow { position: absolute; inset: -4px; background: linear-gradient(45deg, #dc2626, #4f46e5); border-radius: 9999px; filter: blur(8px); opacity: 0.5; }
-        #status-247 { opacity: 1 !important; display: flex !important; visibility: visible !important; }
+        body { 
+            background-color: #050505; 
+            color: #fff; 
+            font-family: sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        #player-box { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
+            background: #000; 
+            border-radius: 24px; 
+            overflow: hidden; 
+            display: none; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .admin-card {
+            background: linear-gradient(145deg, #111111, #0a0a0a);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .avatar-frame {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-cover: cover;
+            border-radius: 50%;
+            border: 3px solid #dc2626;
+        }
     </style>
 </head>
-<body class="pb-24">
-    <div id="status-247" class="fixed top-0 left-0 w-full bg-red-600/10 border-b border-red-600/20 py-2 justify-center items-center gap-2 z-[100]">
-        <div class="flex gap-1">
-            <div class="wave-bar" style="animation-delay: 0s"></div>
-            <div class="wave-bar" style="animation-delay: 0.2s"></div>
-            <div class="wave-bar" style="animation-delay: 0.4s"></div>
-        </div>
-        <span class="text-[9px] font-bold text-red-500 uppercase tracking-widest">Premier Pro Engine v5.0 Active</span>
-    </div>
-
-    <div class="max-w-4xl mx-auto px-4 pt-16">
-        <header class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold tracking-tighter italic animate-pulse">
+<body>
+    <div class="flex flex-col items-center p-4 min-h-screen pb-20">
+        <div class="w-full max-w-lg mt-8 mb-8 text-center">
+            <h1 class="text-4xl font-black tracking-tighter italic">
                 PREMIER <span class="text-red-600">PRO</span>
             </h1>
-            <div class="flex justify-center items-center gap-3 mt-4">
-                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-gray-400">CORE v5.0</span>
-                <span id="live-clock" class="text-red-500 font-mono text-sm font-bold tracking-widest">00:00:00</span>
-                <span class="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-[10px] font-bold text-green-500">STABLE</span>
-            </div>
-        </header>
+            <p class="text-gray-500 text-[10px] uppercase tracking-[0.3em] mt-2 font-bold">
+                Hệ thống phát nhạc của Nguyễn Tiêu
+            </p>
+        </div>
 
-        <section class="mb-12">
-            <div class="relative max-w-lg mx-auto group">
-                <input type="text" id="videoUrl" placeholder="Dán link YouTube tại đây..." 
-                    class="w-full bg-[#111] border border-white/10 rounded-3xl py-6 px-8 outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 transition-all text-sm text-white shadow-2xl">
-                <button onclick="handlePlay()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-4 rounded-2xl transition active:scale-95 shadow-xl">
-                    <i data-lucide="zap" class="w-6 h-6 fill-white"></i>
+        <div class="w-full max-w-lg space-y-6">
+            <div class="relative group">
+                <input type="text" id="videoUrl" placeholder="Dán link video YouTube tại đây..." 
+                    class="w-full bg-[#121212] border border-white/10 rounded-2xl py-5 px-6 outline-none focus:border-red-600 focus:ring-4 focus:ring-red-600/10 transition-all text-sm">
+                <button id="execBtn" onclick="handlePlay()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-700 p-3 rounded-xl transition active:scale-95 shadow-lg">
+                    <i data-lucide="play" class="w-5 h-5 fill-white"></i>
                 </button>
             </div>
-        </section>
 
-        <div id="main-ui" class="hidden">
-            <div id="player-box" class="shadow-2xl ring-1 ring-white/10 mb-8 max-w-3xl mx-auto">
-                <div id="player"></div>
-            </div>
-
-            <div class="glass rounded-[32px] p-8 max-w-3xl mx-auto mb-8">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="font-bold text-lg flex items-center gap-2 italic text-red-500">
-                        <i data-lucide="activity"></i> NGUYỄN TIÊU DASHBOARD
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-green-500 font-bold uppercase">Engine Connected</span>
-                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    </div>
+            <div id="main-ui" class="hidden">
+                <div id="player-box" class="mb-6 shadow-2xl">
+                    <div id="player"></div>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                        <p class="text-gray-500 text-[10px] font-bold uppercase mb-1">CPU Load</p>
-                        <p id="cpu-val" class="text-xl font-bold tracking-tighter">--%</p>
+
+                <div class="bg-[#111] rounded-[32px] p-6 space-y-4 border border-white/5">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">TRẠNG THÁI</span>
+                        <span class="text-[10px] text-green-500 font-bold">ĐANG CHẠY NỀN</span>
                     </div>
-                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                        <p class="text-gray-500 text-[10px] font-bold uppercase mb-1">Memory</p>
-                        <p id="mem-val" class="text-xl font-bold tracking-tighter">--GB</p>
-                    </div>
-                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                        <p class="text-gray-500 text-[10px] font-bold uppercase mb-1">Uptime</p>
-                        <p id="uptime-val" class="text-xl font-bold tracking-tighter text-red-500">0m</p>
-                    </div>
-                    <div class="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
-                        <p class="text-gray-500 text-[10px] font-bold uppercase mb-1">Status</p>
-                        <p class="text-xl font-bold tracking-tighter uppercase text-[12px] pt-1 text-blue-400">Streaming</p>
+                    <div class="flex items-center gap-4 text-sm text-gray-300">
+                        <i data-lucide="music" class="w-4 h-4 text-red-500"></i>
+                        <span id="video-title">Đang tải thông tin...</span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="max-w-2xl mx-auto mt-12">
-             <div class="glass rounded-[40px] p-10 flex flex-col items-center text-center space-y-6 border border-white/5">
-                <div class="profile-container">
-                    <div class="profile-glow"></div>
-                    <div class="relative w-full h-full rounded-full overflow-hidden border-2 border-white/20">
-                        <img src="https://sf-static.upanhlaylink.com/img/image_202601272ebbdb5b82ff7c12177a2edde9723d69.jpg" 
-                             alt="Nguyễn Tiêu Admin" 
-                             class="w-full h-full object-cover shadow-2xl">
+            <div class="admin-card rounded-[32px] p-8 mt-10 space-y-6 shadow-xl">
+                <div class="text-center space-y-4">
+                    <div class="avatar-frame">
+                        <img src="https://sf-static.upanhlaylink.com/img/image_202601272ebbdb5b82ff7c12177a2edde9723d69.jpg" class="avatar-img" alt="Nguyễn Tiêu">
+                        <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-[#050505] rounded-full"></div>
                     </div>
-                    <div class="absolute bottom-1 right-2 bg-green-500 w-6 h-6 rounded-full border-4 border-[#121212] z-10"></div>
+                    <div>
+                        <h2 class="text-2xl font-bold tracking-tight">Nguyễn Tiêu</h2>
+                        <p class="text-gray-500 text-[10px] uppercase tracking-widest font-bold">Lead Developer & Admin</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-4xl font-black italic uppercase tracking-tight">Nguyễn Tiêu</h2>
-                    <p class="text-red-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2">Lead Developer & Admin</p>
-                </div>
-                <div class="grid grid-cols-3 gap-4 w-full">
-                    <a href="https://www.facebook.com/share/18EVigUwxz/" target="_blank" class="flex flex-col items-center gap-2 p-5 bg-white/5 rounded-2xl hover:bg-blue-600/20 transition-all border border-white/5 group">
-                        <i data-lucide="facebook" class="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Facebook</span>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="https://www.facebook.com/share/18EVigUwxz/" target="_blank" class="flex items-center gap-3 bg-white/5 hover:bg-blue-600/20 p-4 rounded-2xl border border-white/5 transition-all group">
+                        <i data-lucide="facebook" class="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-medium">Facebook</span>
                     </a>
-                    <a href="https://zalo.me/0353564018" target="_blank" class="flex flex-col items-center gap-2 p-5 bg-white/5 rounded-2xl hover:bg-cyan-600/20 transition-all border border-white/5 group">
-                        <i data-lucide="message-circle" class="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Zalo</span>
+                    
+                    <a href="https://tiktok.com/@nguyentieulive" target="_blank" class="flex items-center gap-3 bg-white/5 hover:bg-pink-600/20 p-4 rounded-2xl border border-white/5 transition-all group">
+                        <i data-lucide="video" class="w-5 h-5 text-white group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-medium">TikTok</span>
                     </a>
-                    <a href="https://tiktok.com/@nguyentieulive" target="_blank" class="flex flex-col items-center gap-2 p-5 bg-white/5 rounded-2xl hover:bg-pink-600/20 transition-all border border-white/5 group">
-                        <i data-lucide="video" class="w-6 h-6 text-white group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">TikTok</span>
+
+                    <a href="https://zalo.me/0353564018" target="_blank" class="flex items-center gap-3 bg-white/5 hover:bg-blue-400/20 p-4 rounded-2xl border border-white/5 transition-all group">
+                        <i data-lucide="message-circle" class="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-medium">Zalo</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 bg-white/5 hover:bg-red-600/20 p-4 rounded-2xl border border-white/5 transition-all group">
+                        <i data-lucide="globe" class="w-5 h-5 text-red-500 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-sm font-medium">Website</span>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-lg glass rounded-full p-2 flex justify-between items-center z-50 border border-white/10 shadow-2xl">
-        <button onclick="scrollToTop()" class="p-4 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="home" class="w-5 h-5 text-gray-400"></i></button>
-        <div class="flex gap-2">
-            <div class="px-6 py-3 bg-red-600 rounded-full flex items-center gap-3 shadow-lg shadow-red-600/20">
-                <div class="w-2 h-2 bg-white rounded-full animate-ping"></div>
-                <span class="text-[10px] font-black uppercase tracking-widest">System Online</span>
-            </div>
-        </div>
-        <button onclick="window.location.reload()" class="p-4 bg-white/5 rounded-full hover:bg-white/10 transition"><i data-lucide="refresh-cw" class="w-5 h-5 text-gray-400"></i></button>
-    </div>
+    <!-- Hidden Bridge for Background Play -->
+    <audio id="audioBridge" loop style="display:none;"></audio>
 
-    <audio id="mediaBridge" loop style="display:none;"></audio>
-    <video id="noSleepVideo" loop playsinline muted style="display:none;"></video>
-
-    <script>
+    <script type="text/javascript">
         lucide.createIcons();
-        let wakeLock = null;
-        let uptimeCount = 0;
-        let player;
-        const bridge = document.getElementById('mediaBridge');
-        const nosleep = document.getElementById('noSleepVideo');
-
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toLocaleTimeString('vi-VN', { hour12: false });
-            uptimeCount++;
-            document.getElementById('uptime-val').innerText = Math.floor(uptimeCount / 60) + "m";
-            document.getElementById('cpu-val').innerText = Math.floor(Math.random() * 8 + 2) + "%";
-            document.getElementById('mem-val').innerText = (Math.random() * 0.4 + 0.2).toFixed(1) + "GB";
-        }
-        setInterval(updateClock, 1000);
-
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
-            }
-        }
-
-        function syncPlaybackState(state) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = state;
-            }
-        }
-
-        function updateMediaSession(title) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: title || 'Premier Pro Live',
-                    artist: 'Nguyễn Tiêu Admin',
-                    artwork: [{ src: 'https://sf-static.upanhlaylink.com/img/image_202601272ebbdb5b82ff7c12177a2edde9723d69.jpg', sizes: '512x512', type: 'image/jpg' }]
-                });
-
-                navigator.mediaSession.setActionHandler('play', () => {
-                    if (player && typeof player.playVideo === 'function') {
-                        player.playVideo();
-                        bridge.play().catch(()=>{});
-                        syncPlaybackState("playing");
-                    }
-                });
-                navigator.mediaSession.setActionHandler('pause', () => {
-                    if (player && typeof player.pauseVideo === 'function') {
-                        player.pauseVideo();
-                        bridge.pause();
-                        syncPlaybackState("paused");
-                    }
-                });
-                navigator.mediaSession.setActionHandler('seekto', (details) => {
-                    if (details.seekTime && player) {
-                        player.seekTo(details.seekTime);
-                    }
-                });
-            }
-        }
-
-        function initBackgroundMode() {
-            nosleep.src = "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAAAAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAAG1kYXQ=";
-            nosleep.play().catch(()=>{});
-            bridge.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
-            bridge.play().catch(()=>{});
-            requestWakeLock();
-        }
 
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        var bridge = document.getElementById('audioBridge');
+
+        function extractVideoId(url) {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
 
         function handlePlay() {
-            const url = document.getElementById('videoUrl').value;
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            const videoId = (match && match[2].length === 11) ? match[2] : null;
+            var url = document.getElementById('videoUrl').value;
+            var videoId = extractVideoId(url);
 
-            if (!videoId) return;
+            if (!videoId) {
+                return;
+            }
 
-            initBackgroundMode();
+            // Kích hoạt chế độ chạy ngầm bằng cách phát một âm thanh lặng
+            bridge.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+            bridge.play().catch(function(){});
+
             document.getElementById('main-ui').classList.remove('hidden');
             document.getElementById('player-box').style.display = 'block';
 
-            if (player && typeof player.loadVideoById === 'function') {
+            if (player) {
                 player.loadVideoById(videoId);
             } else {
                 player = new YT.Player('player', {
-                    height: '100%', width: '100%', videoId: videoId,
-                    playerVars: { 'autoplay': 1, 'playsinline': 1, 'modestbranding': 1, 'rel': 0 },
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'playsinline': 1,
+                        'modestbranding': 1,
+                        'rel': 0,
+                        'enablejsapi': 1
+                    },
                     events: {
-                        'onReady': (e) => {
-                            updateMediaSession(e.target.getVideoData().title);
-                            syncPlaybackState("playing");
-                        },
-                        'onStateChange': (e) => {
-                            if (e.data === YT.PlayerState.PLAYING) {
-                                updateMediaSession(player.getVideoData().title);
-                                syncPlaybackState("playing");
-                                bridge.play().catch(()=>{});
-                            } else if (e.data === YT.PlayerState.PAUSED) {
-                                syncPlaybackState("paused");
-                                bridge.pause();
-                            }
-                        }
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
                     }
                 });
             }
-            document.getElementById('main-ui').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        document.getElementById('videoUrl').addEventListener('keypress', (e) => { if (e.key === 'Enter') handlePlay(); });
+        function onPlayerReady(event) {
+            event.target.playVideo();
+            updateMediaSession();
+        }
 
-        window.addEventListener('blur', () => {
-            if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-                bridge.play().catch(()=>{});
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                document.getElementById('video-title').innerText = player.getVideoData().title;
+                updateMediaSession();
+                bridge.play().catch(function(){});
+            } else if (event.data == YT.PlayerState.PAUSED) {
+                bridge.pause();
             }
+        }
+
+        function updateMediaSession() {
+            if ('mediaSession' in navigator && player) {
+                var data = player.getVideoData();
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: data.title,
+                    artist: "Nguyễn Tiêu Admin",
+                    artwork: [
+                        { src: 'https://sf-static.upanhlaylink.com/img/image_202601272ebbdb5b82ff7c12177a2edde9723d69.jpg', sizes: '512x512', type: 'image/jpg' }
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', function() { 
+                    player.playVideo(); 
+                    bridge.play().catch(function(){});
+                });
+                navigator.mediaSession.setActionHandler('pause', function() { 
+                    player.pauseVideo(); 
+                    bridge.pause();
+                });
+            }
+        }
+
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handlePlay();
         });
     </script>
 </body>
