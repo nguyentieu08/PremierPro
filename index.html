@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PREMIER PRO | NGUYỄN TIÊU ADMIN</title>
+    <title>PREMIER PRO | NGUYỄN TIÊU</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -160,6 +160,12 @@
             }
         }
 
+        function syncPlaybackState(state) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = state;
+            }
+        }
+
         function updateMediaSession(title) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -169,17 +175,22 @@
                 });
 
                 navigator.mediaSession.setActionHandler('play', () => {
-                    if (player) {
+                    if (player && typeof player.playVideo === 'function') {
                         player.playVideo();
                         bridge.play().catch(()=>{});
-                        navigator.mediaSession.playbackState = "playing";
+                        syncPlaybackState("playing");
                     }
                 });
                 navigator.mediaSession.setActionHandler('pause', () => {
-                    if (player) {
+                    if (player && typeof player.pauseVideo === 'function') {
                         player.pauseVideo();
                         bridge.pause();
-                        navigator.mediaSession.playbackState = "paused";
+                        syncPlaybackState("paused");
+                    }
+                });
+                navigator.mediaSession.setActionHandler('seekto', (details) => {
+                    if (details.seekTime && player) {
+                        player.seekTo(details.seekTime);
                     }
                 });
             }
@@ -218,15 +229,15 @@
                     events: {
                         'onReady': (e) => {
                             updateMediaSession(e.target.getVideoData().title);
-                            navigator.mediaSession.playbackState = "playing";
+                            syncPlaybackState("playing");
                         },
                         'onStateChange': (e) => {
                             if (e.data === YT.PlayerState.PLAYING) {
                                 updateMediaSession(player.getVideoData().title);
-                                navigator.mediaSession.playbackState = "playing";
+                                syncPlaybackState("playing");
                                 bridge.play().catch(()=>{});
                             } else if (e.data === YT.PlayerState.PAUSED) {
-                                navigator.mediaSession.playbackState = "paused";
+                                syncPlaybackState("paused");
                                 bridge.pause();
                             }
                         }
@@ -238,6 +249,12 @@
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         document.getElementById('videoUrl').addEventListener('keypress', (e) => { if (e.key === 'Enter') handlePlay(); });
+
+        window.addEventListener('blur', () => {
+            if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                bridge.play().catch(()=>{});
+            }
+        });
     </script>
 </body>
 </html>
