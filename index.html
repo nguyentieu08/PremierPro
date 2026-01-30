@@ -83,13 +83,15 @@
         }
         .alert-toast.active { transform: translateX(-50%) translateY(0); }
 
-        #player-container {
+        #player-wrapper {
             width: 100%;
             aspect-ratio: 16/9;
             background: #000;
             border-radius: 24px;
             overflow: hidden;
             display: none;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         
         #loader {
@@ -147,7 +149,7 @@
     <div id="authOverlay" class="auth-container">
         <div class="auth-box glass-card">
             <div class="text-center mb-10">
-                <h2 class="text-4xl font-black italic tracking-tighter mb-2">PREMIER <span class="text-red-600">PRO</span></h2>
+                <h2 class="text-4xl font-black italic tracking-tighter mb-2 text-white">PREMIER <span class="text-red-600">PRO</span></h2>
                 <div class="flex justify-center gap-8 mt-8">
                     <button id="tabLogin" onclick="switchTab('login')" class="tab-btn active text-[10px] font-bold uppercase tracking-widest">Đăng nhập</button>
                     <button id="tabRegister" onclick="switchTab('register')" class="tab-btn text-[10px] font-bold uppercase tracking-widest">Đăng ký</button>
@@ -202,12 +204,12 @@
         <div class="relative mb-10">
             <input type="text" id="ytUrl" placeholder="Dán link Video YouTube tại đây..." 
                 class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl outline-none focus:border-red-600 transition-all duration-500 text-sm">
-            <button onclick="playVideo()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 p-4 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-red-600/30">
-                <i data-lucide="play" class="w-5 h-5 fill-white"></i>
+            <button onclick="initVideoPlayer()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-600 p-4 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-red-600/30">
+                <i data-lucide="play" class="w-5 h-5 fill-white text-white"></i>
             </button>
         </div>
 
-        <div id="player-container" class="mb-10 border border-white/10">
+        <div id="player-wrapper" class="mb-10 border border-white/10">
             <div id="ytPlayer"></div>
         </div>
 
@@ -289,7 +291,6 @@
             try { await signInWithPopup(auth, provider); }
             catch (e) { 
                 if(e.code === 'auth/popup-blocked') showToast("Hãy cho phép bật cửa sổ Popup!");
-                else if(e.code === 'auth/operation-not-allowed') showToast("Hãy bật Google Auth trong Firebase!");
                 else showToast("Lỗi Google: " + e.code);
             }
             finally { document.getElementById('loader').style.display = 'none'; }
@@ -299,6 +300,59 @@
     </script>
 
     <script>
+        var player = null;
+
+        function extractVideoID(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function initVideoPlayer() {
+            const urlInput = document.getElementById('ytUrl').value;
+            const videoID = extractVideoID(urlInput);
+
+            if (!videoID) {
+                showToast("Link YouTube không hợp lệ!");
+                return;
+            }
+
+            document.getElementById('player-wrapper').style.display = 'block';
+
+            if (player) {
+                player.destroy();
+                player = null;
+            }
+
+            const wrapper = document.getElementById('player-wrapper');
+            wrapper.innerHTML = '<div id="ytPlayer"></div>';
+
+            player = new YT.Player('ytPlayer', {
+                height: '100%',
+                width: '100%',
+                videoId: videoID,
+                playerVars: {
+                    'autoplay': 1,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': (event) => {
+                        event.target.playVideo();
+                    },
+                    'onError': (event) => {
+                        showToast("Lỗi: Video này có thể bị hạn chế phát tại đây.");
+                    }
+                }
+            });
+        }
+
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg; t.classList.add('active');
@@ -319,23 +373,7 @@
             auth.style.opacity = '0'; auth.style.pointerEvents = 'none';
             main.classList.remove('hidden');
             setTimeout(() => main.style.opacity = '1', 100);
-        }
-
-        lucide.createIcons();
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        var player;
-
-        function playVideo() {
-            var url = document.getElementById('ytUrl').value;
-            var vid = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^& \n]+)/);
-            if (vid && vid[1]) {
-                document.getElementById('player-container').style.display = 'block';
-                if(player) player.loadVideoById(vid[1]);
-                else player = new YT.Player('ytPlayer', { height: '100%', width: '100%', videoId: vid[1] });
-            } else { showToast("Link không hợp lệ!"); }
+            lucide.createIcons();
         }
     </script>
 </body>
