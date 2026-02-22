@@ -20,47 +20,6 @@
             border-radius: 30px;
         }
 
-        .auth-container {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            background: radial-gradient(circle at top right, #1e1b4b, #000);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .auth-box {
-            width: 400px;
-            max-width: 90%;
-            padding: 40px 30px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 14px 16px 14px 52px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            outline: none;
-            transition: 0.3s;
-            color: white;
-            font-size: 14px;
-        }
-
-        .input-field:focus {
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.08);
-            transform: scale(1.02);
-        }
-
-        .btn-gradient {
-            background: linear-gradient(45deg, var(--primary), var(--accent));
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.2);
-        }
-
         .alert-toast {
             position: fixed;
             top: 30px;
@@ -88,35 +47,10 @@
             position: relative;
         }
         
-        #loader {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 200;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .tab-btn {
-            position: relative;
-            opacity: 0.4;
-            transition: 0.4s;
-        }
-        .tab-btn.active {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 25px;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 10px;
+        .btn-gradient {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 210, 255, 0.2);
         }
 
         .side-menu {
@@ -198,65 +132,12 @@
         }
     </style>
 </head>
-<body>
+<body onload="showMain()">
 
     <div id="toast" class="alert-toast">Thông báo!</div>
 
-    <div id="loader">
-        <div class="flex flex-col items-center">
-            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-6 text-[10px] font-bold tracking-[0.5em] text-blue-400">ĐANG XỬ LÝ</p>
-        </div>
-    </div>
-
-    <div id="authOverlay" class="auth-container">
-        <div class="auth-box glass-card">
-            <div class="text-center mb-10">
-                <h2 class="text-4xl font-black italic tracking-tighter mb-2 text-white">PREMIER <span class="text-red-600">PRO</span></h2>
-                <div class="flex justify-center gap-8 mt-8">
-                    <button id="tabLogin" onclick="switchTab('login')" class="tab-btn active text-[10px] font-bold uppercase tracking-widest">Đăng nhập</button>
-                    <button id="tabRegister" onclick="switchTab('register')" class="tab-btn text-[10px] font-bold uppercase tracking-widest">Đăng ký</button>
-                </div>
-            </div>
-            
-            <div id="loginForm" class="space-y-5">
-                <div class="relative">
-                    <i class="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 opacity-30 text-sm"></i>
-                    <input type="email" id="loginEmail" class="input-field" placeholder="Email...">
-                </div>
-                <div class="relative">
-                    <i class="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 opacity-30 text-sm"></i>
-                    <input type="password" id="loginPass" class="input-field" placeholder="Mật khẩu...">
-                </div>
-                <button onclick="handleEmailLogin()" class="w-full py-4 rounded-2xl font-bold btn-gradient text-[11px] uppercase tracking-widest">Đăng nhập</button>
-                <div class="flex items-center gap-4 py-4 opacity-20">
-                    <hr class="flex-1 border-white/20"> <span class="text-[9px] font-bold">HOẶC</span> <hr class="flex-1 border-white/20">
-                </div>
-                <button onclick="loginGoogle()" class="w-full py-4 rounded-2xl font-bold bg-white text-black flex items-center justify-center gap-3 text-[11px] uppercase tracking-widest shadow-xl">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4">
-                    Google Account
-                </button>
-            </div>
-
-            <div id="registerForm" class="hidden space-y-5">
-                <div class="relative">
-                    <i class="fa-solid fa-user absolute left-5 top-1/2 -translate-y-1/2 opacity-30 text-sm"></i>
-                    <input type="text" id="regName" class="input-field" placeholder="Họ và tên...">
-                </div>
-                <div class="relative">
-                    <i class="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 opacity-30 text-sm"></i>
-                    <input type="email" id="regEmail" class="input-field" placeholder="Email đăng ký...">
-                </div>
-                <div class="relative">
-                    <i class="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 opacity-30 text-sm"></i>
-                    <input type="password" id="regPass" class="input-field" placeholder="Mật khẩu tối thiểu 6 ký tự...">
-                </div>
-                <button onclick="handleEmailRegister()" class="w-full py-4 rounded-2xl font-bold btn-gradient text-[11px] uppercase tracking-widest">Tạo tài khoản</button>
-            </div>
-        </div>
-    </div>
-
     <div id="menuOverlay" class="overlay-bg" onclick="toggleMenu()"></div>
+    
     <div id="sideMenu" class="side-menu">
         <div class="p-8 h-full flex flex-col">
             <div class="flex justify-between items-center mb-10">
@@ -270,60 +151,38 @@
                 <button onclick="showModal('privacy')" class="w-full flex items-center gap-4 text-sm font-medium opacity-70 hover:opacity-100 transition">
                     <i data-lucide="shield-check" class="w-5 h-5"></i> Chính sách bảo mật
                 </button>
+                
                 <div class="pt-6 border-t border-white/10">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-[10px] font-bold opacity-50 uppercase tracking-widest">Hosting 24/7</span>
                         <div id="hostingToggle" onclick="toggleHosting()" class="toggle-switch"></div>
                     </div>
-                    <p class="text-[9px] opacity-40 leading-relaxed italic">Duy trì trạng thái web hoạt động liên tục ngay cả khi bạn không tương tác.</p>
+                    <p class="text-[9px] opacity-40 leading-relaxed italic">Duy trì trạng thái web hoạt động liên tục và ngăn thiết bị ngủ.</p>
                 </div>
             </div>
             <div class="pt-6 border-t border-white/10">
-                <button onclick="handleLogout()" class="w-full flex items-center gap-4 text-sm font-bold text-red-500 hover:text-red-400 transition">
-                    <i data-lucide="log-out" class="w-5 h-5"></i> Đăng xuất
-                </button>
+                <p class="text-[10px] text-center opacity-30">PREMIER PRO v2.0</p>
             </div>
         </div>
     </div>
 
     <div id="guideModal" class="modal" onclick="closeModal('guide')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-2xl font-bold mb-4 text-blue-400 italic">HƯỚNG DẪN SỬ DỤNG</h2>
-            <div class="text-sm opacity-80 space-y-4 leading-relaxed">
-                <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <h4 class="font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4"></i> Web Online 24/7</h4>
-                    <p>Hệ thống được vận hành trên hạ tầng Cloud tốc độ cao, đảm bảo khả năng truy cập mọi lúc, mọi nơi không gián đoạn.</p>
-                </div>
-                <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <h4 class="font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4"></i> Chạy nền & Tắt màn hình</h4>
-                    <p>Hỗ trợ công nghệ Background Playback. Bạn có thể thu nhỏ trình duyệt hoặc tắt màn hình điện thoại mà âm thanh video vẫn tiếp tục phát.</p>
-                </div>
-                <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <h4 class="font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="play-circle" class="w-4 h-4"></i> Cách xem video</h4>
-                    <p>Dán link YouTube (bao gồm cả Shorts) và nhấn Play. Premier Pro tự động loại bỏ quảng cáo và tối ưu hóa băng thông.</p>
-                </div>
-            </div>
-            <button onclick="closeModal('guide')" class="mt-8 w-full py-4 btn-gradient rounded-2xl font-bold uppercase text-[11px] tracking-widest">Đã hiểu</button>
-        </div>
-    </div>
-
-    <div id="privacyModal" class="modal" onclick="closeModal('privacy')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-2xl font-bold mb-4 text-blue-400 italic">CHÍNH SÁCH BẢO MẬT</h2>
+            <h2 class="text-2xl font-bold mb-4 text-blue-400 italic">HƯỚNG DẪN</h2>
             <div class="text-sm opacity-80 space-y-4">
-                <p>- Ứng dụng không thu thập dữ liệu duyệt web của người dùng.</p>
-                <p>- Thông tin định danh (Email/Tên) được bảo mật tuyệt đối qua Google Firebase.</p>
-                <p>- Không chia sẻ dữ liệu cho bên thứ ba vì bất kỳ mục đích nào.</p>
+                <p>1. Dán link YouTube vào ô nhập liệu.</p>
+                <p>2. Nhấn nút Play để bắt đầu xem.</p>
+                <p>3. Bật Hosting 24/7 để treo máy ổn định hơn.</p>
             </div>
-            <button onclick="closeModal('privacy')" class="mt-8 w-full py-4 bg-white/10 rounded-2xl font-bold uppercase text-[11px]">Đóng</button>
+            <button onclick="closeModal('guide')" class="mt-8 w-full py-4 btn-gradient rounded-2xl font-bold uppercase text-[11px]">Đã hiểu</button>
         </div>
     </div>
 
-    <div id="mainContent" class="hidden opacity-0 p-6 max-w-2xl mx-auto min-h-screen">
+    <div id="mainContent" class="opacity-0 p-6 max-w-2xl mx-auto min-h-screen transition-opacity duration-1000">
         <div class="flex justify-between items-center mt-6 mb-12">
             <div>
                 <h1 class="text-3xl font-black italic">PREMIER <span class="text-red-600">PRO</span></h1>
-                <div id="hostingBadge" class="hosting-status bg-red-500/10 text-red-500 mt-2 hidden">
+                <div id="hostingBadge" class="hosting-status bg-red-500/10 text-red-500 mt-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                     Hosting Offline
                 </div>
@@ -335,9 +194,9 @@
 
         <div class="relative mb-10">
             <input type="text" id="ytUrl" placeholder="Dán link Video YouTube tại đây..." 
-                class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl outline-none focus:border-blue-500 transition-all duration-500 text-sm">
-            <button onclick="initVideoPlayer()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 p-4 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-blue-600/30">
-                <i data-lucide="play" class="w-5 h-5 fill-white text-white"></i>
+                class="w-full bg-white/5 border border-white/10 p-6 rounded-3xl outline-none focus:border-blue-500 transition-all text-sm">
+            <button onclick="initVideoPlayer()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 p-4 rounded-2xl hover:scale-110 active:scale-95 transition-all">
+                <i data-lucide="play" class="w-5 h-5 fill-white"></i>
             </button>
         </div>
 
@@ -346,12 +205,12 @@
         </div>
 
         <div class="glass-card p-6 flex items-center gap-5 mb-10">
-            <div id="userAvatar" class="w-16 h-16 rounded-[22px] bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-2xl overflow-hidden shadow-xl text-white/30">
-                <i class="fa-solid fa-user"></i>
+            <div class="w-16 h-16 rounded-[22px] bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-2xl overflow-hidden shadow-xl">
+                <i class="fa-solid fa-bolt text-white"></i>
             </div>
             <div class="flex-1">
-                <p class="text-[9px] opacity-40 font-bold tracking-widest uppercase mb-1">Thành viên</p>
-                <h3 id="userName" class="font-bold text-lg text-white">Đang tải...</h3>
+                <p class="text-[9px] opacity-40 font-bold tracking-widest uppercase mb-1">Trạng thái hệ thống</p>
+                <h3 class="font-bold text-lg text-white">Guest User</h3>
             </div>
             <div class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
         </div>
@@ -362,72 +221,16 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyB5kie1ftIiwM_gkMBYZ6yHd5nF8zVPtV8",
-          authDomain: "premier-pro-nguyentieudev.firebaseapp.com",
-          projectId: "premier-pro-nguyentieudev",
-          storageBucket: "premier-pro-nguyentieudev.firebasestorage.app",
-          messagingSenderId: "369627315232",
-          appId: "1:369627315232:web:c41d71a7ed8b6a6a7d9045",
-          measurementId: "G-GYY8NH93FK"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('userName').innerText = user.displayName || user.email;
-                if(user.photoURL) {
-                    document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
-                }
-                showMain();
-            }
-        });
-
-        window.handleEmailRegister = async () => {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPass').value;
-            if(!name || !email || pass.length < 6) return showToast("Thông tin không hợp lệ!");
-            document.getElementById('loader').style.display = 'flex';
-            try {
-                const res = await createUserWithEmailAndPassword(auth, email, pass);
-                await updateProfile(res.user, { displayName: name });
-                showToast("Đăng ký thành công!");
-            } catch (e) { showToast("Lỗi đăng ký!"); }
-            finally { document.getElementById('loader').style.display = 'none'; }
-        };
-
-        window.handleEmailLogin = async () => {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            if(!email || !pass) return showToast("Thiếu thông tin!");
-            document.getElementById('loader').style.display = 'flex';
-            try { await signInWithEmailAndPassword(auth, email, pass); }
-            catch (e) { showToast("Sai tài khoản/mật khẩu!"); }
-            finally { document.getElementById('loader').style.display = 'none'; }
-        };
-
-        window.loginGoogle = async () => {
-            document.getElementById('loader').style.display = 'flex';
-            const provider = new GoogleAuthProvider();
-            try { await signInWithPopup(auth, provider); }
-            catch (e) { showToast("Lỗi Google!"); }
-            finally { document.getElementById('loader').style.display = 'none'; }
-        };
-
-        window.handleLogout = () => { signOut(auth).then(() => location.reload()); };
-    </script>
-
     <script>
         var player = null;
         var wakeLock = null;
         var hostingActive = false;
+
+        function showMain() {
+            document.getElementById('mainContent').classList.remove('hidden');
+            setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 100);
+            lucide.createIcons();
+        }
 
         function toggleMenu() {
             const menu = document.getElementById('sideMenu');
@@ -443,21 +246,21 @@
 
             if(hostingActive) {
                 btn.classList.add('on');
-                badge.classList.remove('hidden', 'bg-red-500/10', 'text-red-500');
-                badge.classList.add('bg-green-500/10', 'text-green-500');
+                badge.classList.replace('bg-red-500/10', 'bg-green-500/10');
+                badge.classList.replace('text-red-500', 'text-green-500');
                 badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Hosting Online 24/7';
                 
                 try {
                     if ('wakeLock' in navigator) {
                         wakeLock = await navigator.wakeLock.request('screen');
                     }
-                } catch (err) { console.log(err); }
+                } catch (err) {}
                 
                 showToast("Đã kích hoạt chế độ treo Hosting 24/7");
             } else {
                 btn.classList.remove('on');
-                badge.classList.remove('bg-green-500/10', 'text-green-500');
-                badge.classList.add('bg-red-500/10', 'text-red-500');
+                badge.classList.replace('bg-green-500/10', 'bg-red-500/10');
+                badge.classList.replace('text-green-500', 'text-red-500');
                 badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Hosting Offline';
                 
                 if (wakeLock !== null) {
@@ -494,43 +297,21 @@
             
             player = new YT.Player('ytPlayer', {
                 height: '100%', width: '100%', videoId: videoID,
-                playerVars: { 
-                    'autoplay': 1, 
-                    'rel': 0, 
-                    'playsinline': 1,
-                    'enablejsapi': 1 
-                },
+                playerVars: { 'autoplay': 1, 'rel': 0, 'playsinline': 1 },
                 events: { 'onReady': (e) => e.target.playVideo() }
             });
         }
 
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        document.getElementsByTagName('script')[0].parentNode.insertBefore(tag, document.getElementsByTagName('script')[0]);
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg; t.classList.add('active');
             setTimeout(() => t.classList.remove('active'), 3000);
         }
-
-        function switchTab(type) {
-            const isLogin = type === 'login';
-            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
-            document.getElementById('registerForm').classList.toggle('hidden', isLogin);
-            document.getElementById('tabLogin').classList.toggle('active', isLogin);
-            document.getElementById('tabRegister').classList.toggle('active', !isLogin);
-        }
-
-        function showMain() {
-            document.getElementById('authOverlay').style.opacity = '0';
-            document.getElementById('authOverlay').style.pointerEvents = 'none';
-            document.getElementById('mainContent').classList.remove('hidden');
-            document.getElementById('hostingBadge').classList.remove('hidden');
-            setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 100);
-            lucide.createIcons();
-        }
     </script>
 </body>
 </html>
-
